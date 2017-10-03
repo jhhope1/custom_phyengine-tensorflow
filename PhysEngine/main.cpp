@@ -186,6 +186,7 @@ void initstick() {
 	stick.r = Vector();
 	stick.euler = Vector(0., 0., 0.);
 	stick.w = Vector(0., 0.1, 0.);
+	stick.F=(0,0,-M*g);
 }
 void flyingstick() {
 	Quat q = stick.q;//, qi = stick.qi;
@@ -208,22 +209,15 @@ void flyingstick() {
 	wb = wb + alphab*dtime;
 	stick.w = rotI*wb;//여기에서 한번 더 torot을 해주어야하는지 의문이다.
 
-
-	stick.F = Vector(0, 0, 0);
 	stick.v= stick.v + stick.F*(1 / stick.m)*dtime;
 	stick.r = stick.r + stick.v*dtime;
 }
 int main() {
-	Vector z(0, 0, 1), v(1, 1, 0);
-	phys t = pi / 2;
-	Quat p = Quat(0, z*sin(t / 2)) + Quat(cos(t / 2)), pinv = Quat::qinv(p);
-	Vector r = (p*Quat(0, v)*pinv).ext();
 	initstick();
-	system("pause");
 	Vector stickendinit=Vector(-1.0L,0.0L,0.0L);
 	Vector stickendnow=Vector(0,0,0);
 	for(int i=0 ; i<10000 ; i++){
-        //if(i%100) continue;
+        if(i%100=0) continue;
 		Mat33 Qrot = stick.q.toRot();
 		stickendnow = Qrot.inv()*stickendinit;
 		printf("quaternion=(%.3Lf,  %.3Lf, %.3Lf, %.3Lf)\n", stick.q.r,stick.q.i,stick.q.j,stick.q.k);
