@@ -28,21 +28,8 @@ struct Vector{
     phys operator% (Vector w){
         return x*w.x+y*w.y+z*w.z;
     }
-};
-struct Quat{
-    phys r,i,j,k;
-    Quat(phys r=0, phys i=0, phys j=0, phys k=0):r(r),i(i),j(j),k(k){}
-    Quat operator+ (Quat w){
-        return Quat(r+w.r,i+w.i,j+w.j,k+w.k);
-    }
-    Quat operator- (Quat w){
-        return Quat(r-w.r,i-w.i,j-w.j,k-w.k);
-    }
-    Quat operator* (Quat w){
-        return Quat(r*w.r - i*w.i - j*w.j - k*w.k,
-                    r*w.i + i*w.r + j*w.k - k*w.j,
-                    r*w.j - i*w.k + j*w.r + k*w.i,
-                    r*w.k + i*w.j - j*w.i + k*w.r);
+    phys norm(){
+        return sqrt(x*x+y*y+z*z);
     }
 };
 struct Mat33{
@@ -90,7 +77,7 @@ struct Mat33{
         return z;
     }
     Mat33 operator* (Mat33 z){
-        Mat33 w(0.,0.,0.,0.,0.,0.,0.,0.,0.);
+        Mat33 w;
         for(int i=0;i<3;i++){
             for(int j=0;j<3;j++){
                 for(int k=0;k<3;k++){
@@ -112,12 +99,53 @@ struct Mat33{
                      mat[0][2],mat[1][2],mat[2][2]);
     }
 };
+struct Quat{
+    phys r,i,j,k;
+    Quat(phys r=0, phys i=0, phys j=0, phys k=0):r(r),i(i),j(j),k(k){}
+    Quat(phys r,Vector v):r(r),i(v.x),j(v.y),k(v.z){}
+    Quat operator+ (Quat w){
+        return Quat(r+w.r,i+w.i,j+w.j,k+w.k);
+    }
+    Quat operator- (Quat w){
+        return Quat(r-w.r,i-w.i,j-w.j,k-w.k);
+    }
+    Quat operator* (Quat w){
+        return Quat(r*w.r - i*w.i - j*w.j - k*w.k,
+                    r*w.i + i*w.r + j*w.k - k*w.j,
+                    r*w.j - i*w.k + j*w.r + k*w.i,
+                    r*w.k + i*w.j - j*w.i + k*w.r);
+    }
+    Quat operator* (phys d){
+        return Quat(r*d,i*d,j*d,k*d);
+    }
+    static Quat qinv(Vector v){
+        return Quat(v*(-1./v.norm()));
+    }
+    Vector ext(){
+        return Vector(i,j,k);
+    }
+    phys norm(){
+        return sqrt(r*r+i*i+j*j+k*k);
+    }
+    static Quat qinv(Quat q){
+        return Quat(q.r,-q.i,-q.j,-q.k)*(1./q.norm()/q.norm());
+    }
+    Mat33 toRot(){
+        return Mat33(1.L-2.L*(j*j+k*k), 2.L*(i*j-r*k), 2.L*(r*j+i*k),
+                     2.L*(i*j+r*k), 1.L-2.L*(i*i+k*k), 2.L*(j*k-r*i),
+                     2.L*(i*k-r*j), 2.L*(r*i+j*k), 1.L-2.L*(i*i+j*j)
+                     );
+    }
+};
 struct Rigidbody{
-    Rigidbody(){}
+    Rigidbody(){
+        q = Quat(0.,1.,0.,0.); //space -> body v' = q*v*qinv
+        qi = Quat::qinv(q); // body -> space
+    }
     phys m,speed;
-    Mat33 I, invI;
-    Vector r,v,vb,w,euler,F,tau;
-    Quat qori;
+    Mat33 Ib, invIb;
+    Vector r,v,w,euler,F,tau;
+    Quat q,qi;
 };
 Rigidbody stick;
 void initstick(){
@@ -153,48 +181,28 @@ void initstick(){
     stick.w = Vector(0.5,0.1,0.3);
 }
 void flyingstick(){
-
-    phys eux=stick.euler.x;
-    phys euy=stick.euler.y;
-    phys euz=stick.euler.z;
-    //이 밑은 계산 훨씬 줄일수 있음. 계산하면 됨. 추후에 바꿔야할 것.
-    Mat33 RollMat(cos(eux),sin(eux),0,
-                  -sin(eux),cos(eux),0,
-                  0,0,1);
-    Mat33 PitchMat(1,0,0,
-                   0,cos(euy),sin(euy),
-                   0,-sin(euy),cos(euy));
-    Mat33 YawMat(cos(euz),sin(euz),0,
-                 -sin(euz),cos(euz),0,
-                 0,0,1);
-    Mat33 Rotatemat=YawMat*PitchMat*RollMat;//문법은 몰라요~~초기화는 알아서 빼서 하세요~~
-    Vector wprime = Rotatemat*stick.w;//초기화는 알아서~
-    Mat33 WprimeMat(0,-wprime.z, wprime.y,
-                    wprime.z, 0, -wprime.x,
-                    -wprime.y, wprime.x, 0);//문법은 몰라요~~초기화는 알아서 빼서 하세요~~
-
-    Vector alphaprime = stick.invI * (stick.tau - (WprimeMat*stick.I + stick.I*WprimeMat.transpose())*wprime); //tau를 프라임좌표계에서 봐야~~~
-    printf("alphaprime = (%.3f %.3f %.3f)\n",alphaprime.x,alphaprime.y,alphaprime.z);
-    Vector alpha = Rotatemat.inv()*alphaprime;
-    printf("alpha = (%.3f %.3f %.3f)\n",alpha.x,alpha.y,alpha.z);
-
-    Mat33 I_labframe=Rotatemat.transpose()*stick.I*Rotatemat;
-    Vector L = I_labframe*stick.w;
-    printf("L = (%.3f %.3f %.3f), |L| = %.6f\n",L.x,L.y,L.z,sqrt(L.x*L.x+L.y*L.y+L.z*L.z));
-
-    Mat33 WtoXYZ(1,sin(eux)*tan(euy),cos(eux)*tan(euy),
-                 0,cos(eux),-sin(eux),
-                 0,sin(eux)/cos(euy),cos(eux)/cos(euy));
-
-    stick.w = stick.w + alpha*dtime;//스칼라곱 정의해놓을것
-    stick.euler = stick.euler + WtoXYZ*stick.w*dtime;//마찬가지
-
-    Vector a;
-    stick.v = stick.v + a*dtime;//스칼라곱 정의해놓을것
-    stick.r = stick.r + stick.v*dtime;
-
+    Quat q = stick.q, qi = stick.qi;
+    Vector taub = (q*Quat(0,tau)*qi).ext();
+    Vector wb = (q*Quat(0,w)*qi).ext();
+    Mat33 rotI = q.toRot();
+    Vector Lb=stick.Ib*wb;
+    Vector Tb = Vector(Lb.x*Lb.x/2.L/Ib.mat[0][0],Lb.y)
+    Vector alphab = stick.invIb*(taub-rotI*stick.Ib*rotI.transpose()*wb);
+    wb = wb + alphab*dtime;
+    stick.q = Quat(wb.norm()*dtime,wb*(1/wb.norm()))*q;
+    stick.qi = Quat::qinv(stick.q);
+    stick.w = (stick.qi*Quat(0,wb)*stick.q).ext();
 }
 int main(){
+    Vector z(0,0,1), v(1,1,0);
+    phys t = pi/2;
+    Quat p=Quat(z*sin(t/2))+Quat(cos(t/2)), pinv=Quat::qinv(p);
+    Vector r = (p*Quat(v)*pinv).ext();
+    printf("z=(%.3f,%.3f,%.3f)\n",z.x,z.y,z.z);
+    printf("quat p=(%.3f,%.3f,%.3f,%.3f)\n",p.r,p.i,p.j,p.k);
+    printf("quat pinv=(%.3f,%.3f,%.3f,%.3f)\n",pinv.r,pinv.i,pinv.j,pinv.k);
+    printf("r=(%.3f,%.3f,%.3f)\n",r.x,r.y,r.z);
+    /*
     initstick();
     system("pause");
     for(int i=0 ; i<10000 ; i++){
@@ -204,5 +212,5 @@ int main(){
             printf("r = (%.3f, %.3f, %.3f)\n",stick.r.x,stick.r.y,stick.r.z);
             printf("euler = (%.3f,%.3f,%.3f)\n",stick.euler.x,stick.euler.y,stick.euler.z);
             printf("w = (%.3f %.3f %.3f)\n",stick.w.x,stick.w.y,stick.w.z);
-    }
+    }*/
 }
