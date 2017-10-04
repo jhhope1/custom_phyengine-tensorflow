@@ -212,3 +212,27 @@ struct Stick {
 	void flyingstick();
 	void debugstick();
 };
+struct Robotbody : public Rigidbody {
+};
+struct subleg : public Rigidbody {
+	
+};
+struct motor {
+	subleg &mtbody, &mtlink;
+	Vector mtaxis;
+	phys mttheta, mtomega, mtalpha;
+	void setaxis(Vector v) {
+		mtaxis = v;
+	}
+};
+struct Leg {
+	motor &pri, &mid, &end;
+	subleg &fir, &sec;
+};
+struct robot {
+	Robotbody &body;
+	Leg &fr, &fl, &br, &bl;
+	void setalpha();
+	void setForce();
+	void timeflow();
+};
