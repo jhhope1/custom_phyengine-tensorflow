@@ -34,3 +34,6 @@ Physengine_VS/.vs/Physengine_VS/v15/.suo
 Physengine_VS/.vs/Physengine_VS/v15/Browse.VC.db
 Physengine_VS/.vs/Physengine_VS/v15/Browse.VC.db
 Physengine_VS/.vs/Physengine_VS/v15/.suo
+*.db
+Physengine_VS/.vs/Physengine_VS/v15/.suo
+*.opendb
