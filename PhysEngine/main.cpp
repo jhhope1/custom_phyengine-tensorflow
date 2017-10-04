@@ -185,8 +185,8 @@ void initstick() {
 	stick.tau = Vector(0.,0.,0.);
 	stick.r = Vector();
 	stick.euler = Vector(0., 0., 0.);
-	stick.w = Vector(0., 0.1, 0.);
-	stick.F=(0,0,-M*g);
+	stick.w = Vector(0.2, 0.1, 0.3);
+	stick.F=(0.,0.,0.);
 }
 void flyingstick() {
 	Quat q = stick.q;//, qi = stick.qi;
@@ -217,7 +217,7 @@ int main() {
 	Vector stickendinit=Vector(-1.0L,0.0L,0.0L);
 	Vector stickendnow=Vector(0,0,0);
 	for(int i=0 ; i<10000 ; i++){
-        if(i%100=0) continue;
+        if(i%100==0) continue;
 		Mat33 Qrot = stick.q.toRot();
 		stickendnow = Qrot.inv()*stickendinit;
 		printf("quaternion=(%.3Lf,  %.3Lf, %.3Lf, %.3Lf)\n", stick.q.r,stick.q.i,stick.q.j,stick.q.k);
@@ -225,6 +225,13 @@ int main() {
         printf("r = (%.3Lf, %.3Lf, %.3Lf)\n",stick.r.x,stick.r.y,stick.r.z);
         printf("막대기의 한쪽 끝의 처음 위치 = (1, 0, 0), 지금 위치 = (%.3Lf,%.3Lf,%.3Lf)\n",stickendnow.x,stickendnow.y,stickendnow.z);
         printf("w = (%.3Lf %.3Lf %.3Lf)\n",stick.w.x,stick.w.y,stick.w.z);
+        printf("\n");
+        Quat Qs=stick.q;
+        Mat33 QsRot=Qs.toRot();
+        Vector Angmom=Vector(QsRot.mat[0][0]*stick.Ibdia.x*QsRot.inv().mat[0][0]*stick.w.x,
+                             QsRot.mat[1][1]*stick.Ibdia.y*QsRot.inv().mat[1][1]*stick.w.y,
+                             QsRot.mat[2][2]*stick.Ibdia.z*QsRot.inv().mat[2][2]*stick.w.z);
+        printf("angular momentum = (%.3Lf, %.3Lf, %.3Lf)\n\n", Angmom.x, Angmom.y, Angmom.z);
         flyingstick();
         }
 }
