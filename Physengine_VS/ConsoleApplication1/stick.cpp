@@ -11,11 +11,11 @@ const phys R = 0.01;
 void Stick::initstick() {
 	Stick::stick.Ibdia = Vector(0.5L*M*R*R, 1.L / 12.L*M*h*h + 1.L / 4.L*M*R*R, 1.L / 12.L*M*h*h + 1.L / 4.L*M*R*R);
 	Stick::stick.m = M;
-	Stick::stick.q = Quat(0.L, 1.L, 0.L, 0.L);
-	Stick::stick.tau = Vector(0., 0., 0.);
+	Stick::stick.q = Quat(0.L, 1L, 0.L, 0.L);
+	Stick::stick.tau = Vector(0., -0.1L, 0.);
 	Stick::stick.r = Vector();
 	Stick::stick.euler = Vector(0., 0., 0.);
-	Stick::stick.w = Vector(0.2, 0.1, 0.3);
+	Stick::stick.w = Vector(0., 1, 0.);
 	Stick::stick.F = (0., 0., 0.);
 }
 void Stick::flyingstick() {
