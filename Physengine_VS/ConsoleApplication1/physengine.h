@@ -3,13 +3,12 @@
 #include <math.h>
 #include <iostream>
 #include <stdlib.h>
-#include "stdafx.h"
 using namespace std;
 using phys = long double;
 //Basic physics constants
 const phys g = 9.81;
 const phys pi = 3.14159265358979323846264338;
-const phys dtime = 5e-3;
+const phys dtime = 1e-3;
 
 //3D Vector
 struct Vector {
@@ -154,8 +153,8 @@ struct Quat {
 	}
 	Mat33 toRot() {
 		return Mat33(r*r + i*i - j*j - k*k, 2.L*(i*j - r*k), 2.L*(r*j + i*k),
-			2.L*(i*j + r*k), 1.L - 2.L*(i*i + k*k), 2.L*(j*k - r*i),
-			2.L*(i*k - r*j), 2.L*(r*i + j*k), 1.L - 2.L*(i*i + j*j)
+			2.L*(i*j + r*k), r*r-i*i+j*j-k*k, 2.L*(j*k - r*i),
+			2.L*(i*k - r*j), 2.L*(r*i + j*k), r*r-i*i-j*j+k*k
 		);
 	}
 	void normalize() {

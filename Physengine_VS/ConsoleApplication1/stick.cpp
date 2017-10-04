@@ -30,7 +30,7 @@ void Stick::flyingstick() {
 	Quat dq = (Mat44(wb.x, wb.y, wb.z)*q)*0.5L;
 
 	Stick::stick.q = q + dq*dtime;
-	Stick::stick.q.normalize();
+	//Stick::stick.q.normalize();
 	phys SIbdia[3] = { Stick::stick.Ibdia.x, Stick::stick.Ibdia.y,Stick::stick.Ibdia.z };
 	Vector alphab = Vector((SIbdia[1] - SIbdia[2]) / SIbdia[0] * wb.y*wb.z + taub.x / SIbdia[0],
 		(SIbdia[2] - SIbdia[0]) / SIbdia[1] * wb.z*wb.x + taub.y / SIbdia[1],
@@ -48,8 +48,8 @@ void Stick::debugstick() {
 	initstick();
 	Vector stickendinit = Vector(-1.0L, 0.0L, 0.0L);
 	Vector stickendnow = Vector(0, 0, 0);
-	for (int i = 0; i < 100000; i++) {
-		if (i % 1000 != 0) continue;
+	for (int i = 0; i < 5000000; i++) {
+		if (i % 50000 != 0) continue;
 		Mat33 Qrot = Stick::stick.q.toRot();
 		stickendnow = Qrot.inv()*stickendinit;
 		cout << "quat = " << Stick::stick.q << "norm = " << Stick::stick.q.norm() << '\n';
