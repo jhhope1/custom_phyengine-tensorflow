@@ -1,4 +1,8 @@
-#include <bits/stdc++.h>
+#include <stdio.h>
+#include <math.h>
+#include <iostream>
+#include <stdlib.h>
+#include "stdafx.h"
 using namespace std;
 using phys = long double;
 
