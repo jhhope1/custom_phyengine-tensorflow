@@ -232,7 +232,7 @@ struct Leg {
 struct robot {
 	Robotbody &body;
 	Leg &fr, &fl, &br, &bl;
-	void setalpha();
+	void settorque();
 	void setForce();
 	void timeflow();
 };

@@ -1,0 +1,21 @@
+1. 토크가 주어졌을 때.
+
+우리는 rotation.pdf의 (10)번 식을 통해 그 좌표계에서의 alpha를 안다면 토크를 안다는 것을 안다.
+
+하지만 우리가 절대적으로 알고 있는 각가속도는 아무것도 없다. 따라서 body의 각가속도를 Alpha_body로 둔다.
+
+그렇다면 space coordinate에서의 n번째 leg인 leg_n의 각가속도는 명백히 다음과 같을 것이다.
+
+alpha_leg_n_space = alpha_body + Sum(ei_space * alphamotor1)		단, i = 0 ... n 이다.
+
+ei_space는 i번째 모터의 회전 축의 방향벡터이다. 이는 q.toRot 행렬곱으로 나타낼 수 있으며, 원 좌표계의 값 ei의 값에서 얻어낼 수 있다.
+
+ei_space = Q1 * Q2 * ... * Qi * ei;
+
+space coordinate에서의 leg의 각가속도를 얻었으니, 이제 다시 역변환을 통해 leg의 좌표계에서 leg의 각가속도를 얻어낼수 있겠다.
+
+alpha_leg=QnT * Qn-1T * ... * Q1T * alpha_leg_space;
+
+이제 식 (10)번을 사용할 준비를 모두 마쳤다.
+
+참조: propagation of alpha
