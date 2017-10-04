@@ -14,8 +14,12 @@ ei_space = Q1 * Q2 * ... * Qi * ei;
 
 space coordinate에서의 leg의 각가속도를 얻었으니, 이제 다시 역변환을 통해 leg의 좌표계에서 leg의 각가속도를 얻어낼수 있겠다.
 
-alpha_leg=QnT * Qn-1T * ... * Q1T * alpha_leg_space;
+alpha_leg_n = QnT * Qn-1T * ... * Q1T * alpha_leg_space;
+
+이를 정리하면 훨씬 간단한 식이 나오는데, 이는 다음과 같다.
+
+한글파일에 있다. -- 참조: propagation of alpha.hwp
 
 이제 식 (10)번을 사용할 준비를 모두 마쳤다.
 
-참조: propagation of alpha
+참조: propagation of alpha.png
