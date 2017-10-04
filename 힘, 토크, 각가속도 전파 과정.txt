@@ -22,7 +22,9 @@ alpha_leg_n = QnT * Qn-1T * ... * Q1T * alpha_leg_space;
 -- 참조: propagation of alpha.hwp
 
 
-이 방법으로 w_i도 구할수 있다. 단 차이점은 alpha는 식으로 구한다면 w_body를 알아 w_i는 그냥 값으로 구할 수 있다는 것이다.
+이 방법으로 w_i도 구할수 있다. alpha를 모두 w로만 바꾸면 된다.
+
+단 차이점은 alpha는 식으로 구한다면 w_body를 알아 w_i는 그냥 값으로 구할 수 있다는 것이다.
 
 이제 식 (10)번을 사용할 준비를 모두 마쳤다.
 
