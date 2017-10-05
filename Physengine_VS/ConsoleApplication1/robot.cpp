@@ -1,5 +1,5 @@
 #include "physengine.h"
-void robot::settorque() {
+void robot::setalpha() {
 	//fl.pri.mtalpha = ~~~~
 }
 void robot::setForce() {
@@ -10,7 +10,7 @@ void calculate_all_alpha() {
 	
 }
 void robot::timeflow() {
-	settorque();
+	setalpha();
 	setForce();
 
 }

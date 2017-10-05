@@ -6,7 +6,7 @@
 */
 #include "physengine.h"
 ostream& operator<<(ostream& os, const Vector& v) {
-	os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+	os << "(" << v.V[0] << ", " << v.V[1] << ", " << v.V[2] << ")";
 	return os;
 }
 ostream& operator<< (ostream &os, const Mat33& m) {
@@ -18,6 +18,6 @@ ostream& operator<< (ostream &os, const Mat33& m) {
 	return os;
 }
 ostream& operator<< (ostream &os, const Quat &q) {
-	os << "[" << q.r << ",( " << q.i << ", " << q.j << ", " << q.k << ")]";
+	os << "[" << q.q[0] << ",( " << q.q[1] << ", " << q.q[2] << ", " << q.q[3] << ")]";
 	return os;
 }
