@@ -12,25 +12,29 @@ const phys dtime = 1e-3;
 
 //3D Vector
 struct Vector {
-	phys x, y, z;
-	Vector(phys x = 0.L, phys y = 0.L, phys z = 0.L) :x(x), y(y), z(z) {}
+	phys V[3];
+	Vector(phys x = 0.L, phys y = 0.L, phys z = 0.L) {
+		V[0] = x;
+		V[1] = y;
+		V[2] = z;
+	}
 	Vector operator+ (Vector w) {
-		return Vector(x + w.x, y + w.y, z + w.z);
+		return Vector(V[0] + w.V[0], V[1] + w.V[1], V[2] + w.V[2]);
 	}
 	Vector operator- (Vector w) {
-		return Vector(x - w.x, y - w.y, z - w.z);
+		return Vector(V[0] - w.V[0], V[1] - w.V[1], V[2] - w.V[2]);
 	}
 	Vector operator* (Vector w) {
-		return Vector(y * w.z - z * w.y, z * w.x - x * w.z, x * w.y - y * w.x);
+		return Vector(V[1] * w.V[2] - V[2] * w.V[1], V[2] * w.V[0] - V[0] * w.V[2], V[0] * w.V[1] - V[1] * w.V[0]);
 	}
 	Vector operator* (phys a) {
-		return Vector(x*a, y*a, z*a);
+		return Vector(V[0]*a, V[1]*a, V[2]*a);
 	}
 	phys operator% (Vector w) {
-		return x*w.x + y*w.y + z*w.z;
+		return V[0]*w.V[0] + V[1]*w.V[1] + V[2]*w.V[2];
 	}
 	phys norm() {
-		return sqrt(x*x + y*y + z*z);
+		return sqrt(V[0]*V[0] + V[1]*V[1] + V[2]*V[2]);
 	}
 	friend ostream& operator<< (ostream& os, const Vector& v);
 };
@@ -50,9 +54,9 @@ struct Mat33 {
 		mat[2][2] = i;
 	}
 	Mat33(Vector dia) {
-		mat[0][0] = dia.x;
-		mat[1][1] = dia.y;
-		mat[2][2] = dia.z;
+		mat[0][0] = dia.V[0];
+		mat[1][1] = dia.V[1];
+		mat[2][2] = dia.V[2];
 	}
 	Mat33 inv() {
 		phys det = 0;
@@ -98,9 +102,9 @@ struct Mat33 {
 	}
 	Vector operator* (Vector z) {
 		Vector w;
-		return Vector(mat[0][0] * z.x + mat[0][1] * z.y + mat[0][2] * z.z,
-			mat[1][0] * z.x + mat[1][1] * z.y + mat[1][2] * z.z,
-			mat[2][0] * z.x + mat[2][1] * z.y + mat[2][2] * z.z);
+		return Vector(mat[0][0] * z.V[0] + mat[0][1] * z.V[1] + mat[0][2] * z.V[2],
+			mat[1][0] * z.V[0] + mat[1][1] * z.V[1] + mat[1][2] * z.V[2],
+			mat[2][0] * z.V[0] + mat[2][1] * z.V[1] + mat[2][2] * z.V[2]);
 	}
 	Mat33 transpose() {
 		return Mat33(mat[0][0], mat[1][0], mat[2][0],
@@ -109,9 +113,9 @@ struct Mat33 {
 	}
 	Mat33 operator% (Vector dia) {
 		return Mat33(
-			mat[0][0] * dia.x, mat[0][1] * dia.y, mat[0][2] * dia.z,
-			mat[1][0] * dia.x, mat[1][1] * dia.y, mat[1][2] * dia.z,
-			mat[2][0] * dia.x, mat[2][1] * dia.y, mat[2][2] * dia.z
+			mat[0][0] * dia.V[0], mat[0][1] * dia.V[1], mat[0][2] * dia.V[2],
+			mat[1][0] * dia.V[0], mat[1][1] * dia.V[1], mat[1][2] * dia.V[2],
+			mat[2][0] * dia.V[0], mat[2][1] * dia.V[1], mat[2][2] * dia.V[2]
 		);
 	}
 	friend ostream& operator<< (ostream& os, const Mat33& m);
@@ -121,49 +125,71 @@ struct Mat33 {
 //Note : to rotate a vector v through angle t around z :
 // v -> qvq^-1 where q = (cos(t/2), sin(t/2)*z)
 struct Quat {
-	phys r, i, j, k;
-	Quat(phys r = 0., phys i = 1., phys j = 0., phys k = 0.) :r(r), i(i), j(j), k(k) {}
-	Quat(phys r, Vector v) :r(r), i(v.x), j(v.y), k(v.z) {}
+	phys q[4];
+	Quat(phys r = 0., phys i = 1., phys j = 0., phys k = 0.) {
+		q[0] = r;
+		q[1] = i;
+		q[2] = j;
+		q[3] = k;
+	}
+	Quat(phys r, Vector v) {
+		q[0] = r;
+		q[1] = v.V[0];
+		q[2] = v.V[1];
+		q[3] = v.V[2];
+	}
 	Quat operator+ (Quat w) {
-		return Quat(r + w.r, i + w.i, j + w.j, k + w.k);
+		return Quat(q[0] + w.q[0], q[1] + w.q[1], q[2] + w.q[2], q[3] + w.q[3]);
 	}
 	Quat operator- (Quat w) {
-		return Quat(r - w.r, i - w.i, j - w.j, k - w.k);
+		return Quat(q[0] - w.q[0], q[1] - w.q[1], q[2] - w.q[2], q[3] - w.q[3]);
 	}
 	Quat operator* (Quat w) {
-		return Quat(r*w.r - i*w.i - j*w.j - k*w.k,
-			r*w.i + i*w.r + j*w.k - k*w.j,
-			r*w.j - i*w.k + j*w.r + k*w.i,
-			r*w.k + i*w.j - j*w.i + k*w.r);
+		return Quat(q[0]*w.q[0] - q[1]*w.q[1] - q[2]*w.q[2] - q[3]*w.q[3],
+			q[0]*w.q[1] + q[1]*w.q[0] + q[2]*w.q[3] - q[3]*w.q[2],
+			q[0]*w.q[2] - q[1]*w.q[3] + q[2]*w.q[0] + q[3]*w.q[1],
+			q[0]*w.q[3] + q[1]*w.q[2] - q[2]*w.q[1] + q[3]*w.q[0]);
 	}
 	Quat operator* (phys d) {
-		return Quat(r*d, i*d, j*d, k*d);
+		return Quat(q[0]*d, q[1]*d, q[2]*d, q[3]*d);
 	}
 	static Quat qinv(Vector v) {
 		return Quat(0, v*(-1. / v.norm()));
 	}
 	Vector ext() {
-		return Vector(i, j, k);
+		return Vector(q[1], q[2], q[3]);
 	}
 	phys norm() {
-		return sqrt(r*r + i*i + j*j + k*k);
+		return sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
 	}
 	static Quat qinv(Quat q) {
-		return Quat(q.r, -q.i, -q.j, -q.k)*(1. / q.norm() / q.norm());
+		return Quat(q.q[0], -q.q[1], -q.q[2], -q.q[3])*(1. / q.norm() / q.norm());
 	}
 	Mat33 toRot() {
-		return Mat33(r*r + i*i - j*j - k*k, 2.L*(i*j - r*k), 2.L*(r*j + i*k),
-			2.L*(i*j + r*k), r*r-i*i+j*j-k*k, 2.L*(j*k - r*i),
-			2.L*(i*k - r*j), 2.L*(r*i + j*k), r*r-i*i-j*j+k*k
+		return Mat33(q[0]*q[0] + q[1]*q[1] - q[2]*q[2] - q[3]*q[3], 2.L*(q[1]*q[2] - q[0]*q[3]), 2.L*(q[0]*q[2] + q[1]*q[3]),
+			2.L*(q[1]*q[2] + q[0]*q[3]), q[0]*q[0]-q[1]*q[1]+q[2]*q[2]-q[3]*q[3], 2.L*(q[2]*q[3] - q[0]*q[1]),
+			2.L*(q[1]*q[3] - q[0]*q[2]), 2.L*(q[0]*q[1] + q[2]*q[3]), q[0]*q[0]-q[1]*q[1]-q[2]*q[2]+q[3]*q[3]
 		);
 	}
 	void normalize() {
 		phys t = norm();
-		r /= t; i /= t; j /= t; k /= t;
+		q[0] /= t; q[1] /= t; q[2] /= t; q[3] /= t;
 	}
 	friend ostream& operator<< (ostream& os, const Quat& q);
 };
-
+Mat33 Matdia(phys a){
+	return Mat33(
+		a, 0, 0,
+		0, a, 0,
+		0, 0, a
+	);
+}
+Mat33 dyadic(Vector u, Vector w) {
+	return Mat33(u.V[0] * w.V[0], u.V[0] * w.V[1], u.V[0] * w.V[2],
+		u.V[1] * w.V[0], u.V[1] * w.V[1], u.V[1] * w.V[2],
+		u.V[2] * w.V[0], u.V[2] * w.V[1], u.V[2] * w.V[2]
+	);
+}
 //4x4 Matrix optimized for Quarternion operation
 struct Mat44 {
 	phys mat[4][4];
@@ -186,10 +212,10 @@ struct Mat44 {
 		mat[3][3] = 0.0L;
 	}
 	Quat operator* (Quat z) {
-		return Quat(mat[0][0] * z.r + mat[0][1] * z.i + mat[0][2] * z.j + mat[0][3] * z.k,
-			mat[1][0] * z.r + mat[1][1] * z.i + mat[1][2] * z.j + mat[1][3] * z.k,
-			mat[2][0] * z.r + mat[2][1] * z.i + mat[2][2] * z.j + mat[2][3] * z.k,
-			mat[3][0] * z.r + mat[3][1] * z.i + mat[3][2] * z.j + mat[3][3] * z.k);
+		return Quat(mat[0][0] * z.q[0] + mat[0][1] * z.q[1] + mat[0][2] * z.q[2] + mat[0][3] * z.q[3],
+			mat[1][0] * z.q[0] + mat[1][1] * z.q[1] + mat[1][2] * z.q[2] + mat[1][3] * z.q[3],
+			mat[2][0] * z.q[0] + mat[2][1] * z.q[1] + mat[2][2] * z.q[2] + mat[2][3] * z.q[3],
+			mat[3][0] * z.q[0] + mat[3][1] * z.q[1] + mat[3][2] * z.q[2] + mat[3][3] * z.q[3]);
 	}
 };
 
@@ -211,4 +237,27 @@ struct Stick {
 	void initstick();
 	void flyingstick();
 	void debugstick();
+};
+struct Robotbody : public Rigidbody {
+};
+struct subleg : public Rigidbody {
+	
+};
+struct motor {
+	subleg &mt;
+	Vector mtaxis;
+	phys mttheta, mtomega, mtalpha;
+	void setaxis(Vector v) {
+		mtaxis = v;
+	}
+};
+struct Leg {
+	motor &pri, &mid, &end;
+};
+struct robot {
+	Robotbody &body;
+	Leg &fr, &fl, &br, &bl;
+	void setalpha();
+	void setForce();
+	void timeflow();
 };

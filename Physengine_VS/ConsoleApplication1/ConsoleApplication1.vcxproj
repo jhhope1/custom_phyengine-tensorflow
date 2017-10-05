@@ -150,6 +150,8 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="physio.cpp" />
+    <ClCompile Include="robot.cpp" />
+    <ClCompile Include="robotwork.cpp" />
     <ClCompile Include="stick.cpp" />
   </ItemGroup>
   <ItemGroup>
