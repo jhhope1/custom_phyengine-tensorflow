@@ -1,9 +1,3 @@
-/*
-	physio.cpp : source file for I/O functions of phyengine's object
-	Last Modified : 2017/10/04 by Changki Yun
-	Now Available :
-		Vector, Mat33, Quat
-*/
 #include "physengine.h"
 ostream& operator<<(ostream& os, const Vector& v) {
 	os << "(" << v.V[0] << ", " << v.V[1] << ", " << v.V[2] << ")";
