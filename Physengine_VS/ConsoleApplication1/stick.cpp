@@ -1,3 +1,7 @@
+/*
+	stick.cpp : test of physengine with a simple stick
+	Last Modified : 2017/10/04 by Changki Yun
+*/
 #include "physengine.h"
 //constants for the stick
 const phys M = 10;

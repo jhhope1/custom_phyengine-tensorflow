@@ -9,7 +9,8 @@ using phys = long double;
 const phys g = 9.81;
 const phys pi = 3.14159265358979323846264338;
 const phys dtime = 1e-3;
-
+const int numsubleg = 3;
+const int numLeg = 4;
 //3D Vector
 struct Vector {
 	phys V[3];
@@ -36,8 +37,17 @@ struct Vector {
 	phys norm() {
 		return sqrt(V[0]*V[0] + V[1]*V[1] + V[2]*V[2]);
 	}
+	phys normsq() {
+		return V[0] * V[0] + V[1] * V[1] + V[2] * V[2];
+	}
 	friend ostream& operator<< (ostream& os, const Vector& v);
 };
+extern phys subLegMass[numsubleg];
+extern phys lbtomot[numLeg];
+extern Vector sublegl[numLeg][numsubleg][2];
+extern Vector sublegAxis[numLeg][numsubleg];
+extern Vector Fg;
+void set_physics_constants();
 //Force Vector
 struct Force {
 	Vector F, r;
@@ -56,7 +66,7 @@ struct Mat33 {
 		mat[2][1] = h;
 		mat[2][2] = i;
 	}
-	Mat33(Vector dia) {
+	Mat33(const Vector dia) {
 		mat[0][0] = dia.V[0];
 		mat[1][1] = dia.V[1];
 		mat[2][2] = dia.V[2];
@@ -131,6 +141,7 @@ struct Mat33 {
 	friend ostream& operator<< (ostream& os, const Mat33& m);
 };
 Mat33 Matdia(phys);
+Mat33 dyadic(Vector);
 Mat33 dyadic(Vector, Vector);
 Mat33 Matskew(Vector);
 //Quarternion
@@ -239,23 +250,29 @@ struct Stick {
 	void debugstick();
 };
 struct Robotbody : public Rigidbody {
+	Robotbody();
 	Vector lbtomot[4];
 };
 struct subleg : public Rigidbody {
+	subleg();
 	subleg *body;
-	Vector axis, l;
+	Vector axis, l[2];
 	phys theta, omega, alpha;
 	void setaxis(Vector v) {
 		axis = v;
 	}
 };
 struct Leg {
-	subleg sub[3];
+	Leg();
+	subleg sub[numsubleg];
 };
 struct robot {
-	Robotbody &body;
-	Leg* leg[4]; //0 : fr, 1 : fl, 2 : br, 3 : bl
+	robot();
+	Robotbody body;
+	Leg leg[4]; //0 : fr, 1 : fl, 2 : br, 3 : bl
+	phys Mtot;
 	void setalpha();
 	void setForce();
+	void setMass();
 	void timeflow();
 };

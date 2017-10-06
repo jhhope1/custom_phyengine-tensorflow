@@ -1,3 +1,9 @@
+/*
+	physio.cpp : source file for I/O functions of phyengine's object
+	Last Modified : 2017/10/04 by Changki Yun
+	Now Available :
+		Vector, Mat33, Quat
+*/
 #include "physengine.h"
 ostream& operator<<(ostream& os, const Vector& v) {
 	os << "(" << v.V[0] << ", " << v.V[1] << ", " << v.V[2] << ")";
@@ -20,6 +26,14 @@ Mat33 Matdia(phys a) {
 		a, 0, 0,
 		0, a, 0,
 		0, 0, a
+	);
+}
+Mat33 dyadic(Vector u) {
+	Vector tmp = Vector(u.V[0] * u.V[1], u.V[1] * u.V[2], u.V[2] * u.V[0]);
+	return Mat33(
+		u.V[0] * u.V[0], tmp.V[0], tmp.V[2],
+		tmp.V[0], u.V[1] * u.V[1], tmp.V[1],
+		tmp.V[2], tmp.V[1], u.V[2] * u.V[2]
 	);
 }
 Mat33 dyadic(Vector u, Vector w) {

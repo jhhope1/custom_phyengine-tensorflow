@@ -33,6 +33,9 @@
     <ClCompile Include="robotwork.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="setconst.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="physengine.h">
