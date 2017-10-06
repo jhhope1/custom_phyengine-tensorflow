@@ -38,7 +38,10 @@ struct Vector {
 	}
 	friend ostream& operator<< (ostream& os, const Vector& v);
 };
-
+//Force Vector
+struct Force {
+	Vector F, r;
+};
 //3x3 Matrix
 struct Mat33 {
 	phys mat[3][3];
@@ -100,6 +103,13 @@ struct Mat33 {
 		}
 		return w;
 	}
+	Mat33 operator* (phys a) {
+		return Mat33(
+			a*mat[0][0], a*mat[0][1], a*mat[0][2],
+			a*mat[1][0], a*mat[1][1], a*mat[1][2],
+			a*mat[2][0], a*mat[2][1], a*mat[2][2]
+		);
+	}
 	Vector operator* (Vector z) {
 		Vector w;
 		return Vector(mat[0][0] * z.V[0] + mat[0][1] * z.V[1] + mat[0][2] * z.V[2],
@@ -120,7 +130,9 @@ struct Mat33 {
 	}
 	friend ostream& operator<< (ostream& os, const Mat33& m);
 };
-
+Mat33 Matdia(phys);
+Mat33 dyadic(Vector, Vector);
+Mat33 Matskew(Vector);
 //Quarternion
 //Note : to rotate a vector v through angle t around z :
 // v -> qvq^-1 where q = (cos(t/2), sin(t/2)*z)
@@ -177,19 +189,7 @@ struct Quat {
 	}
 	friend ostream& operator<< (ostream& os, const Quat& q);
 };
-Mat33 Matdia(phys a){
-	return Mat33(
-		a, 0, 0,
-		0, a, 0,
-		0, 0, a
-	);
-}
-Mat33 dyadic(Vector u, Vector w) {
-	return Mat33(u.V[0] * w.V[0], u.V[0] * w.V[1], u.V[0] * w.V[2],
-		u.V[1] * w.V[0], u.V[1] * w.V[1], u.V[1] * w.V[2],
-		u.V[2] * w.V[0], u.V[2] * w.V[1], u.V[2] * w.V[2]
-	);
-}
+
 //4x4 Matrix optimized for Quarternion operation
 struct Mat44 {
 	phys mat[4][4];
@@ -239,24 +239,22 @@ struct Stick {
 	void debugstick();
 };
 struct Robotbody : public Rigidbody {
+	Vector lbtomot[4];
 };
 struct subleg : public Rigidbody {
-	
-};
-struct motor {
-	subleg &mt;
-	Vector mtaxis;
-	phys mttheta, mtomega, mtalpha;
+	subleg *body;
+	Vector axis, l;
+	phys theta, omega, alpha;
 	void setaxis(Vector v) {
-		mtaxis = v;
+		axis = v;
 	}
 };
 struct Leg {
-	motor &pri, &mid, &end;
+	subleg sub[3];
 };
 struct robot {
 	Robotbody &body;
-	Leg &fr, &fl, &br, &bl;
+	Leg* leg[4]; //0 : fr, 1 : fl, 2 : br, 3 : bl
 	void setalpha();
 	void setForce();
 	void timeflow();
