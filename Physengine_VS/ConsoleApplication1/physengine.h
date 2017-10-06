@@ -38,7 +38,10 @@ struct Vector {
 	}
 	friend ostream& operator<< (ostream& os, const Vector& v);
 };
-
+//Force Vector
+struct Force {
+	Vector F, r;
+};
 //3x3 Matrix
 struct Mat33 {
 	phys mat[3][3];
@@ -127,7 +130,9 @@ struct Mat33 {
 	}
 	friend ostream& operator<< (ostream& os, const Mat33& m);
 };
-
+Mat33 Matdia(phys);
+Mat33 dyadic(Vector, Vector);
+Mat33 Matskew(Vector);
 //Quarternion
 //Note : to rotate a vector v through angle t around z :
 // v -> qvq^-1 where q = (cos(t/2), sin(t/2)*z)
@@ -184,8 +189,6 @@ struct Quat {
 	}
 	friend ostream& operator<< (ostream& os, const Quat& q);
 };
-Mat33 Matdia(phys);
-Mat33 dyadic(Vector, Vector);
 
 //4x4 Matrix optimized for Quarternion operation
 struct Mat44 {
@@ -236,6 +239,7 @@ struct Stick {
 	void debugstick();
 };
 struct Robotbody : public Rigidbody {
+	Vector lbtomot[4];
 };
 struct subleg : public Rigidbody {
 	subleg *body;

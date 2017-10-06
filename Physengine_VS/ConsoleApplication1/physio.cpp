@@ -34,3 +34,10 @@ Mat33 dyadic(Vector u, Vector w) {
 		u.V[2] * w.V[0], u.V[2] * w.V[1], u.V[2] * w.V[2]
 	);
 }
+Mat33 Matskew(Vector u) {
+	return Mat33(
+		0, -u.V[2], u.V[1],
+		u.V[2], 0, -u.V[0],
+		-u.V[1], u.V[0], 0
+	);
+}
