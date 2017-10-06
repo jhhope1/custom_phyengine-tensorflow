@@ -57,7 +57,7 @@ pair<Vector,Vector> robot::timeflow() {
 			for (int i = 0; i < numsubleg; i++)
 				l[i][b] = Qsub[i] * L.sub[i].l[b];
 			
-		lbtomots[legnum] = lbtomotb + l[0][0];
+		lbtomots[0] = lbtomotb + l[0][0];
 		
 		IQsum[0] = Mat33(
 			L.sub[0].Ibdia.V[0] * Qsub[0].mat[0][0], L.sub[0].Ibdia.V[1] * Qsub[0].mat[1][0], L.sub[0].Ibdia.V[2] * Qsub[0].mat[2][0],
@@ -73,19 +73,12 @@ pair<Vector,Vector> robot::timeflow() {
 		}
 		for (int i = 0; i < numsubleg; i++) e[i] = Qsub[i] * L.sub[i].axis;
 		
-		for (int i = 0; i < numsubleg; i++) {
-			cout << "L.sub[" << i << "].omega of leg " << legnum << " = " << L.sub[i].omega << endl;
-		}
 		
 		ws[0] = wsb + e[0] * L.sub[0].omega;
 		for (int i = 1; i < numsubleg; i++) ws[i] = ws[i - 1] + e[i] * L.sub[i].omega;
 		for (int i = 0; i < numsubleg; i++) w[i] = Qsub[i].transpose()*ws[i];
 
 		for (int i = 0; i < numsubleg; i++) Qalpha[i] = e[i] * L.sub[i].alpha;
-		
-		for (int i = 0; i < numsubleg; i++) {
-			cout << "Qalpha[" << i << "] of leg " << legnum << " = " << Qalpha[i] << endl;
-		}
 		
 		for (int i = 1; i < numsubleg; i++)	
 			lbtomots[i] = lbtomots[i - 1] + l[i][0] + l[i - 1][1];
@@ -103,9 +96,6 @@ pair<Vector,Vector> robot::timeflow() {
 				(Qalpha[i - 1] * l[i - 1][1] + ws[i - 1] * (ws[i - 1] * l[i - 1][1])
 					+ Qalpha[i] * l[i][0] + ws[i] * (ws[i] * l[i][0])
 					);
-		}
-		for (int i = 0; i < numsubleg; i++) {
-			cout << "A[" << i << "] of leg " << legnum << " = " << A[i] << endl;
 		}
 		D = Matdia(Ddia) - Dtemp;
 
@@ -152,15 +142,10 @@ pair<Vector,Vector> robot::timeflow() {
 			//frictions are ignored
 		}
 	}
-	cout << "Mtot = " << Mtot << endl;
-	cout << "Feqc_init = " << Feqc << endl;
-	cout << "Teqc_init = " << Teqc << endl;
 	for (Force &f : Flist) {
 		Feqc = Feqc + f.F;
 		Teqc = Teqc + (f.r - body.rs)*f.F;
 	}
-	cout << "Feqc_second = " << Feqc << endl;
-	cout << "Teqc_second = " << Teqc << endl;
 	Feqalpha = Matskew(sumML)*(-1.L);
 	Teqc = Teqc + sumML*Fg;
 	Teqc = Teqc - (Qdot%body.Ibdia)*body.w;
@@ -196,11 +181,8 @@ pair<Vector,Vector> robot::timeflow() {
 	}
 	else {
 		tmpMat = Teqalpha * Feqalpha.inv();
-		cout << "succeeded! - tmpMat" << endl;
 		asb = (Teqa - tmpMat * Feqa).inv() * (Teqc - tmpMat * Feqc);
-		cout << "succeeded! - asb" << endl;
 		alphasb = Feqalpha.inv() * (Feqc - Feqa * asb);
-		cout << "succeeded! - alphasb" << endl;
 	}
 	//body v,w update
 	body.vs = body.vs + asb*dtime;
@@ -209,8 +191,6 @@ pair<Vector,Vector> robot::timeflow() {
 	//body quaternion update
 	Quat dq = (Mat44(body.w.V[0], body.w.V[1], body.w.V[2])*body.q)*0.5L; //¿ÀÂ÷?
 	body.q = body.q + dq*dtime;
-	cout << "function successfully run" << endl;
-	for (int i = 0; i < numsubleg; i++) cout << lbtomots[i] << endl;
 	return make_pair( asb,alphasb );
 }
 robot::robot() {
@@ -266,7 +246,6 @@ Leg::Leg() {
 }
 
 subleg::subleg():theta(0),alpha(0),omega(0) {
-	cout << "alpha = " << alpha << ",omega = " << omega << endl;
 }
 
 Robotbody::Robotbody() {

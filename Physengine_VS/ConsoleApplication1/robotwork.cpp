@@ -4,7 +4,7 @@ void robot::debugrobot() {
 	pair<Vector, Vector> a_alpha;
 	for (int i = 0; i < 100000; i++) {
 		a_alpha = timeflow();
-		cout << "timeflow out" << endl;
+		//cout << "timeflow out" << endl;
 		if (i % 100) continue;
 		cout << "Time : " << i*dtime << '\n';
 		cout << "r of Body : " << body.rs << '\n';
