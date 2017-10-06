@@ -21,3 +21,16 @@ ostream& operator<< (ostream &os, const Quat &q) {
 	os << "[" << q.q[0] << ",( " << q.q[1] << ", " << q.q[2] << ", " << q.q[3] << ")]";
 	return os;
 }
+Mat33 Matdia(phys a) {
+	return Mat33(
+		a, 0, 0,
+		0, a, 0,
+		0, 0, a
+	);
+}
+Mat33 dyadic(Vector u, Vector w) {
+	return Mat33(u.V[0] * w.V[0], u.V[0] * w.V[1], u.V[0] * w.V[2],
+		u.V[1] * w.V[0], u.V[1] * w.V[1], u.V[1] * w.V[2],
+		u.V[2] * w.V[0], u.V[2] * w.V[1], u.V[2] * w.V[2]
+	);
+}

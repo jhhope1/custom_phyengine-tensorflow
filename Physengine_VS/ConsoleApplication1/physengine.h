@@ -100,6 +100,13 @@ struct Mat33 {
 		}
 		return w;
 	}
+	Mat33 operator* (phys a) {
+		return Mat33(
+			a*mat[0][0], a*mat[0][1], a*mat[0][2],
+			a*mat[1][0], a*mat[1][1], a*mat[1][2],
+			a*mat[2][0], a*mat[2][1], a*mat[2][2]
+		);
+	}
 	Vector operator* (Vector z) {
 		Vector w;
 		return Vector(mat[0][0] * z.V[0] + mat[0][1] * z.V[1] + mat[0][2] * z.V[2],
@@ -177,19 +184,9 @@ struct Quat {
 	}
 	friend ostream& operator<< (ostream& os, const Quat& q);
 };
-Mat33 Matdia(phys a){
-	return Mat33(
-		a, 0, 0,
-		0, a, 0,
-		0, 0, a
-	);
-}
-Mat33 dyadic(Vector u, Vector w) {
-	return Mat33(u.V[0] * w.V[0], u.V[0] * w.V[1], u.V[0] * w.V[2],
-		u.V[1] * w.V[0], u.V[1] * w.V[1], u.V[1] * w.V[2],
-		u.V[2] * w.V[0], u.V[2] * w.V[1], u.V[2] * w.V[2]
-	);
-}
+Mat33 Matdia(phys);
+Mat33 dyadic(Vector, Vector);
+
 //4x4 Matrix optimized for Quarternion operation
 struct Mat44 {
 	phys mat[4][4];
@@ -241,22 +238,19 @@ struct Stick {
 struct Robotbody : public Rigidbody {
 };
 struct subleg : public Rigidbody {
-	
-};
-struct motor {
-	subleg &mt;
-	Vector mtaxis;
-	phys mttheta, mtomega, mtalpha;
+	subleg *body;
+	Vector axis, l;
+	phys theta, omega, alpha;
 	void setaxis(Vector v) {
-		mtaxis = v;
+		axis = v;
 	}
 };
 struct Leg {
-	motor &pri, &mid, &end;
+	subleg sub[3];
 };
 struct robot {
 	Robotbody &body;
-	Leg &fr, &fl, &br, &bl;
+	Leg* leg[4]; //0 : fr, 1 : fl, 2 : br, 3 : bl
 	void setalpha();
 	void setForce();
 	void timeflow();
