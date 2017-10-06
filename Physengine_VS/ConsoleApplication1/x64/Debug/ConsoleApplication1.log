@@ -1,9 +1,3 @@
-﻿  stick.cpp
-  setconst.cpp
-  robotwork.cpp
-  robot.cpp
-  physio.cpp
-  main.cpp
-  Generating Code...
+﻿  robot.cpp
   ConsoleApplication1.vcxproj -> C:\Users\slugg\Desktop\2017\2017 노예 프로젝트\휴텍\Physengine_VS\x64\Debug\ConsoleApplication1.exe
   ConsoleApplication1.vcxproj -> C:\Users\slugg\Desktop\2017\2017 노예 프로젝트\휴텍\Physengine_VS\x64\Debug\ConsoleApplication1.pdb (Partial PDB)

@@ -11,9 +11,9 @@ const phys R = 0.01;
 void Stick::initstick() {
 	Stick::stick.Ibdia = Vector(0.5L*M*R*R, 1.L / 12.L*M*h*h + 1.L / 4.L*M*R*R, 1.L / 12.L*M*h*h + 1.L / 4.L*M*R*R);
 	Stick::stick.m = M;
-	Stick::stick.q = Quat(0.L, 1L, 0.L, 0.L);
+	Stick::stick.q = Quat(0.L, 1.L, 0.L, 0.L);
 	Stick::stick.tau = Vector(0.L, -0.L, 0.L);
-	Stick::stick.r = Vector();
+	Stick::stick.rs = Vector();
 	Stick::stick.euler = Vector(0.L, 0.L, 0.L);
 	Stick::stick.w = Vector(0.5L, 0.1L, 0.6L);
 	Stick::stick.F = (0.L, 0.L, 0.L);
@@ -39,8 +39,8 @@ void Stick::flyingstick() {
 	wb = wb + alphab*dtime;
 	Stick::stick.w = rotI*wb;//여기에서 한번 더 torot을 해주어야하는지 의문이다.
 
-	Stick::stick.v = Stick::stick.v + Stick::stick.F*(1 / Stick::stick.m)*dtime;
-	Stick::stick.r = Stick::stick.r + Stick::stick.v*dtime;
+	Stick::stick.vs = Stick::stick.vs + Stick::stick.F*(1 / Stick::stick.m)*dtime;
+	Stick::stick.rs = Stick::stick.rs + Stick::stick.vs*dtime;
 }
 
 void Stick::debugstick() {
@@ -54,7 +54,7 @@ void Stick::debugstick() {
 		stickendnow = Qrot.inv()*stickendinit;
 		cout << "quat = " << Stick::stick.q << "norm = " << Stick::stick.q.norm() << '\n';
 		cout << "time = " << dtime*(i + 1) << '\n';
-		cout << "r = " << Stick::stick.r << '\n';
+		cout << "r = " << Stick::stick.rs << '\n';
 		cout << "initial position of stick : (1,0,0), now : " << stickendnow << '\n';
 		cout << "w = " << Stick::stick.w << '\n';
 		Quat Qs = Stick::stick.q;

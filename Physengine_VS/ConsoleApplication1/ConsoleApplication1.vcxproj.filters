@@ -33,7 +33,7 @@
     <ClCompile Include="robotwork.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="setconst.cpp">
+    <ClCompile Include="robot_setphysconst.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

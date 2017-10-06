@@ -3,14 +3,23 @@
 #include <math.h>
 #include <iostream>
 #include <stdlib.h>
+#include <vector>
 using namespace std;
 using phys = long double;
 //Basic physics constants
-const phys g = 9.81;
-const phys pi = 3.14159265358979323846264338;
+const phys g = 9.81L;
+const phys pi = 3.14159265358979323846264338L;
 const phys dtime = 1e-3;
+const phys Fupscale = 10.L;
+const phys Fdownscale = 1.5L;
 const int numsubleg = 3;
 const int numLeg = 4;
+
+extern phys lxb;
+extern phys lyb;
+extern phys lzb;
+
+void set_physics_constants();
 //3D Vector
 struct Vector {
 	phys V[3];
@@ -47,10 +56,10 @@ extern phys lbtomot[numLeg];
 extern Vector sublegl[numLeg][numsubleg][2];
 extern Vector sublegAxis[numLeg][numsubleg];
 extern Vector Fg;
-void set_physics_constants();
 //Force Vector
 struct Force {
 	Vector F, r;
+	Force(Vector F, Vector r) :F(F), r(r) {}
 };
 //3x3 Matrix
 struct Mat33 {
@@ -70,6 +79,14 @@ struct Mat33 {
 		mat[0][0] = dia.V[0];
 		mat[1][1] = dia.V[1];
 		mat[2][2] = dia.V[2];
+	}
+	phys det() {
+		phys det = 0;
+		for (int i = 0; i < 3; i++) {
+			det += mat[0][i] * 
+				(mat[1][(i + 1) % 3] * mat[2][(i + 2) % 3] - mat[1][(i + 2) % 3] * mat[2][(i + 1) % 3]);
+		}
+		return det;
 	}
 	Mat33 inv() {
 		phys det = 0;
@@ -238,7 +255,7 @@ struct Rigidbody {
 	}
 	phys m, speed;
 	Mat33 invIb;
-	Vector Ibdia, r, v, w, euler, F, tau;
+	Vector Ibdia, rs, vs, w, euler, F, tau;
 	Quat q;
 };
 
@@ -271,8 +288,10 @@ struct robot {
 	Robotbody body;
 	Leg leg[4]; //0 : fr, 1 : fl, 2 : br, 3 : bl
 	phys Mtot;
+	std::vector<Force> Flist;
 	void setalpha();
-	void setForce();
 	void setMass();
-	void timeflow();
+	pair<Vector,Vector> timeflow();
+	void debugrobot();
+	void setI();
 };

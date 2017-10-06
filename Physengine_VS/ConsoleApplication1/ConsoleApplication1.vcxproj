@@ -152,7 +152,7 @@
     <ClCompile Include="physio.cpp" />
     <ClCompile Include="robot.cpp" />
     <ClCompile Include="robotwork.cpp" />
-    <ClCompile Include="setconst.cpp" />
+    <ClCompile Include="robot_setphysconst.cpp" />
     <ClCompile Include="stick.cpp" />
   </ItemGroup>
   <ItemGroup>
