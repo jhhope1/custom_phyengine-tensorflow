@@ -49,3 +49,6 @@ Mat33 Matskew(Vector u) {
 		-u.V[1], u.V[0], 0
 	);
 }
+Quat theta_to_quat(phys th, Vector ax) {
+	return Quat(cos(th / 2.L), ax*sin(th / 2.L));
+}
