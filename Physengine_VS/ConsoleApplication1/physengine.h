@@ -1,4 +1,5 @@
 #pragma once
+#include <fstream>
 #include <stdio.h>
 #include <math.h>
 #include <iostream>
@@ -12,13 +13,16 @@ const phys pi = 3.14159265358979323846264338L;
 const phys dtime = 1e-3;
 const phys Fupscale = 10.L;
 const phys Fdownscale = 1.5L;
+const phys Fric = 3.L;
 const int numsubleg = 3;
 const int numLeg = 4;
+const int printn = 3;
 
 extern phys lxb;
 extern phys lyb;
 extern phys lzb;
 
+extern ofstream txt;
 void set_physics_constants();
 //3D Vector
 struct Vector {
@@ -217,7 +221,7 @@ struct Quat {
 	}
 	friend ostream& operator<< (ostream& os, const Quat& q);
 };
-
+Quat theta_to_quat(phys th, Vector ax);
 //4x4 Matrix optimized for Quarternion operation
 struct Mat44 {
 	phys mat[4][4];
@@ -289,9 +293,9 @@ struct robot {
 	Leg leg[4]; //0 : fr, 1 : fl, 2 : br, 3 : bl
 	phys Mtot;
 	std::vector<Force> Flist;
-	void setalpha();
+	void setalpha(phys);
 	void setMass();
-	pair<Vector,Vector> timeflow();
+	pair<Vector,Vector> timeflow(phys);
 	void debugrobot();
 	void setI();
 };
