@@ -171,23 +171,22 @@ pair<Vector,Vector> robot::timeflow(phys t = 0.0L) {
 		//set Force
 		Vector vlegs = body.vs + wsb*body.lbtomot[legnum];
 		Vector pos;
-		phys N;//수직항력 = kz꼴
+		phys N;//수직항력 = k * z꼴
 		for (int i = 0; i < numsubleg; i++) {
 			vlegs = vlegs + ws[i] * (l[i][0] + l[i][1]);
 			pos = body.rs + lbtomots[i] + l[i][1];
 			if (pos.V[2] < 0) {
 				if (vlegs.V[2] < 0) {
-					N = -pos.V[2] * Fupscale*Mtot*g;
+					N = (0.005 - pos.V[2]) * Fupscale * Mtot * g;
 					Flist.push_back(Force(Vector(0,0,N),pos));
 				}
 				else {
-					N = -pos.V[2] * Fdownscale*Mtot*g;
+					N = (0.005 - pos.V[2]) * Fdownscale * Mtot * g;
 					Flist.push_back(Force(Vector(0, 0, N), pos));
 				}
-				phys norm = sqrt(vlegs.V[0] * vlegs.V[0] + vlegs.V[1] * vlegs.V[1]);
-				Flist.push_back(Force(Vector(-N * vlegs.V[0]/(norm+1e-10) * Fric, -N * vlegs.V[1] * Fric / (norm + 1e-10), 0), pos));
+				phys vnorm = sqrt(vlegs.V[0]*vlegs.V[0]+ vlegs.V[1] * vlegs.V[1]);
+				//if (i == numsubleg - 1) Flist.push_back(Force(Vector(pos.V[2]* vlegs.V[0]/(0.01+vnorm) * Fric, pos.V[2] * vlegs.V[1] / (0.01 + vnorm) * Fric , 0), pos));//leg의 끝에만 friction 작용
 			}
-			//frictions are ignored
 		}
 	}
 	for (Force &f : Flist) {
@@ -305,8 +304,8 @@ Robotbody::Robotbody() {
 	//set mass of body
 	m = 0.5L;
 	//initial location
-	rs = Vector(0, 0, 0.1L);
-	vs = Vector(0, 0.L, 0);
+	rs = Vector(0, 0, 0.14L);
+	vs = Vector(0, 0.1L, 0);
 	q = Quat(0, 1.L, 0, 0);
 	w = Vector(0, 0.L, 0.L);
 	lbtomot[0] = Vector(lxb / 2.L, lyb / 2.L, 0);

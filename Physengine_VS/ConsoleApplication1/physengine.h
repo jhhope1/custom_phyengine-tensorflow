@@ -11,9 +11,9 @@ using phys = long double;
 const phys g = 9.81L;
 const phys pi = 3.14159265358979323846264338L;
 const phys dtime = 1e-3;
-const phys Fupscale = 30.L;
-const phys Fdownscale = 9.L;
-const phys Fric = 0.3L;
+const phys Fupscale = 300.L;
+const phys Fdownscale = 100.L;
+const phys Fric = 1L;
 const int numsubleg = 3;
 const int numLeg = 4;
 const int printn = 3;
@@ -97,7 +97,7 @@ struct Mat33 {
 		Mat33 z;
 		for (int i = 0; i<3; i++) det += (mat[0][i] *
 			(mat[1][(i + 1) % 3] * mat[2][(i + 2) % 3] - mat[1][(i + 2) % 3] * mat[2][(i + 1) % 3]));
-		if (abs(det)<1e-10) {
+		if (abs(det)<1e-30) {
 			for (int i = 0; i<3; i++) {
 				for (int j = 0; j<3; j++) printf("%.3Lf ", mat[i][j]);
 				puts("");
@@ -304,7 +304,7 @@ struct robot {
 
 //trash, horse 구현 함수
 const phys Ahorse=pi/8.L;//진폭
-const phys Ahorse2 = pi / 10.L;
+const phys Ahorse2 = pi/6.L;
 const phys Bhorse=10.L;//2pi/T
 phys sinhorse(phys);
 phys coshorse(phys);
