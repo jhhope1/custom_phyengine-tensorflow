@@ -25,7 +25,7 @@ while True:
         Z.append(line[2])
 
 fig = plt.figure()
-c = 1000
+c = 100
 timen = 20
 for k in range(c):
     if k*timen >= len(T): break
@@ -33,6 +33,8 @@ for k in range(c):
     ax = fig.add_subplot(111,projection='3d')
     ax.scatter(X[timen*17*k:timen*17*k+17],Y[timen*17*k:timen*17*k+17],Z[timen*17*k:timen*17*k+17])
     ax.set_zlim(0,0.5)
+    ax.set_xlim(X[timen*17*k]-0.5,X[timen*17*k]+0.5)
+    ax.set_ylim(Y[timen*17*k]-0.5,Y[timen*17*k]+0.5)
     plt.title(str(T[k*timen]))
     plt.draw()
     """

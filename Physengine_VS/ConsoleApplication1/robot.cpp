@@ -1,10 +1,48 @@
 #include "physengine.h"
-void robot::setalpha(phys t) {
-	for (int legnum = 0; legnum < numLeg; legnum++) {
-		for (int i = 1; i < numsubleg; i++) {
-			leg[legnum].sub[i].alpha = 3.L* sin(t + 0.1L*pi*(1 - (legnum & 2)))*(1 - (legnum & 2));
+phys sinhorse(phys x) {
+	while (1) {
+		if (x > 2 * pi) {
+			x = x - 2 * pi;
+			continue;
 		}
+		if (x < 0) {
+			x = x + 2 * pi;
+			continue;
+		}
+		break;
 	}
+	if (x > pi) {
+		return sin(2 * x);
+	}
+	return 0;
+}
+
+phys coshorse(phys x) {
+	while (1) {
+		if (x > 2 * pi) {
+			x = x - 2 * pi;
+			continue;
+		}
+		if (x < 0) {
+			x = x + 2 * pi;
+			continue;
+		}
+		break;
+	}
+	if (x > pi) {
+		return cos(2 * x);
+	}
+	return 0;
+}
+void robot::setalpha(phys t) {
+	leg[0].sub[1].alpha = Ahorse*Bhorse*Bhorse*cos(Bhorse*t-pi);
+	leg[1].sub[1].alpha = Ahorse*Bhorse*Bhorse*cos(Bhorse*t - pi*2/3);
+	leg[2].sub[1].alpha = Ahorse*Bhorse*Bhorse*cos(Bhorse*t - pi*1/3);
+	leg[3].sub[1].alpha = Ahorse*Bhorse*Bhorse*cos(Bhorse*t);
+	leg[0].sub[2].alpha = -Ahorse2*Bhorse*Bhorse*coshorse(Bhorse*t - pi)*2;
+	leg[1].sub[2].alpha = -Ahorse2*Bhorse*Bhorse* coshorse(Bhorse*t - pi*2/3)*2;
+	leg[2].sub[2].alpha = -Ahorse2*Bhorse*Bhorse*coshorse(Bhorse*t - pi*1/3)*2;
+	leg[3].sub[2].alpha = -Ahorse2*Bhorse*Bhorse*coshorse(Bhorse*t)*2;
 }
 void robot::setMass() {
 	Mtot = body.m;
@@ -133,17 +171,21 @@ pair<Vector,Vector> robot::timeflow(phys t = 0.0L) {
 		//set Force
 		Vector vlegs = body.vs + wsb*body.lbtomot[legnum];
 		Vector pos;
+		phys N;//수직항력 = kz꼴
 		for (int i = 0; i < numsubleg; i++) {
 			vlegs = vlegs + ws[i] * (l[i][0] + l[i][1]);
 			pos = body.rs + lbtomots[i] + l[i][1];
 			if (pos.V[2] < 0) {
 				if (vlegs.V[2] < 0) {
-					Flist.push_back(Force(Vector(0,0,Fupscale*Mtot*g),pos));
+					N = -pos.V[2] * Fupscale*Mtot*g;
+					Flist.push_back(Force(Vector(0,0,N),pos));
 				}
 				else {
-					Flist.push_back(Force(Vector(0, 0, Fdownscale*Mtot*g), pos));
+					N = -pos.V[2] * Fdownscale*Mtot*g;
+					Flist.push_back(Force(Vector(0, 0, N), pos));
 				}
-				Flist.push_back(Force(Vector(-vlegs.V[0] * Fric, -vlegs.V[1] * Fric, 0), pos));
+				phys norm = sqrt(vlegs.V[0] * vlegs.V[0] + vlegs.V[1] * vlegs.V[1]);
+				Flist.push_back(Force(Vector(-N * vlegs.V[0]/(norm+1e-10) * Fric, -N * vlegs.V[1] * Fric / (norm + 1e-10), 0), pos));
 			}
 			//frictions are ignored
 		}
@@ -229,7 +271,7 @@ robot::robot() {
 	for (int i = 0; i < numLeg; i++) {
 		for (int j = 0; j < numsubleg; j++) {
 			for (int b = 0; b < 2; b++) {
-				leg[i].sub[j].l[b] = Vector(0,0.04L*(1-(i&2)), 0);
+				leg[i].sub[j].l[b] = Vector(0,0.03L*(1-(i&2)), 0);
 			}
 		}
 	}
@@ -243,14 +285,14 @@ void robot::setI() {
 		Vector(lyb*lyb + lzb*lzb, lzb*lzb + lxb*lxb, lxb*lxb + lyb*lyb)*body.m *(1.L/12.L);
 	for (int i = 0; i < numLeg; i++) {
 		for (int j = 0; j < numsubleg; j++) {
-			leg[i].sub[j].Ibdia = Vector(0.001L,0.001L,0.001L)*(1.L/12.L);
+			leg[i].sub[j].Ibdia = Vector(0.001L,0.001L,0.001L)*(0.5L/12.L);
 		}
 	}
 }
 Leg::Leg() {
 	for (int i = 0; i < numsubleg; i++) sub[i] = subleg();
 	for (int i = 0; i < numsubleg; i++) {
-		sub[i].m = 0.1L;
+		sub[i].m = 0.05L;
 	}
 	//initial angle
 	sub[1].theta = pi / 2.L;
@@ -263,10 +305,10 @@ Robotbody::Robotbody() {
 	//set mass of body
 	m = 0.5L;
 	//initial location
-	rs = Vector(0, 0, 0.4L);
-	vs = Vector(0, 1.L, 0);
+	rs = Vector(0, 0, 0.1L);
+	vs = Vector(0, 0.L, 0);
 	q = Quat(0, 1.L, 0, 0);
-	w = Vector(0, 1.L, 0.L);
+	w = Vector(0, 0.L, 0.L);
 	lbtomot[0] = Vector(lxb / 2.L, lyb / 2.L, 0);
 	lbtomot[1] = Vector(-lxb / 2.L, lyb / 2.L, 0);
 	lbtomot[2] = Vector(lxb / 2.L, -lyb / 2.L, 0);

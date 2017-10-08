@@ -2,9 +2,29 @@
 using namespace std;
 void robot::debugrobot() {
 	pair<Vector, Vector> a_alpha;
+	//각 omega초기화
+	leg[0].sub[1].omega=Ahorse*Bhorse*sin(-pi);
+	leg[1].sub[1].omega=Ahorse*Bhorse*sin(-pi*2/3);
+	leg[2].sub[1].omega=Ahorse*Bhorse*sin(-pi/3);
+	leg[3].sub[1].omega=0;
+	leg[0].sub[2].omega= -Ahorse2*Bhorse*sinhorse(-pi);
+	leg[1].sub[2].omega=- Ahorse2*Bhorse*sinhorse(-pi*2/3);
+	leg[2].sub[2].omega= -Ahorse2*Bhorse*sinhorse(-pi*1/3);
+	leg[3].sub[2].omega=0;
 
-	for (int i = 0; i < 20000; i++) {
-		a_alpha = timeflow(dtime*i*100.L);
+	//각 theta초기화
+	leg[0].sub[1].theta = pi / 2.L -Ahorse*cos(-pi);
+	leg[1].sub[1].theta = pi / 2.L -Ahorse*cos(-pi * 2 / 3);
+	leg[2].sub[1].theta = pi / 2.L -Ahorse*cos(-pi / 3);
+	leg[3].sub[1].theta = pi / 2.L -Ahorse;
+	leg[0].sub[2].theta =- Ahorse2*(1-coshorse(-pi))/2;
+	leg[1].sub[2].theta = -Ahorse2*(1-coshorse(-pi * 2 / 3))/2;
+	leg[2].sub[2].theta = -Ahorse2*(1-coshorse(-pi * 1 / 3))/2;
+	leg[3].sub[2].theta = -Ahorse2 /2*(1-1);
+
+	for (int i = 0; i < 5000; i++) {
+		a_alpha = timeflow(dtime*i);
+
 		//cout << "timeflow out" << endl;
 		if (i % printn) continue;
 		txt << dtime*i << '\n';
@@ -50,7 +70,9 @@ void robot::debugrobot() {
 				lbtomots[i] = lbtomots[i - 1] + l[i][0] + l[i - 1][1];
 			for (int i = 0; i < numsubleg; i++) {
 				txt << body.rs + lbtomots[i] + l[i][1] << '\n'; //각 subleg의 끝점 출력
-			}
+			} 
+			//cout << "time = "<<dtime*i<< "  leg[" << legnum << "]sub[2].theta = " << leg[legnum].sub[2].theta << endl;
 		}
+		//cout << endl;
 	}
 }

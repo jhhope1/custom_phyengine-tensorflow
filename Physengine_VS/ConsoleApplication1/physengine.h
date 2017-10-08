@@ -11,9 +11,9 @@ using phys = long double;
 const phys g = 9.81L;
 const phys pi = 3.14159265358979323846264338L;
 const phys dtime = 1e-3;
-const phys Fupscale = 10.L;
-const phys Fdownscale = 1.5L;
-const phys Fric = 3.L;
+const phys Fupscale = 30.L;
+const phys Fdownscale = 9.L;
+const phys Fric = 0.3L;
 const int numsubleg = 3;
 const int numLeg = 4;
 const int printn = 3;
@@ -299,3 +299,12 @@ struct robot {
 	void debugrobot();
 	void setI();
 };
+
+
+
+//trash, horse 구현 함수
+const phys Ahorse=pi/8.L;//진폭
+const phys Ahorse2 = pi / 10.L;
+const phys Bhorse=10.L;//2pi/T
+phys sinhorse(phys);
+phys coshorse(phys);
