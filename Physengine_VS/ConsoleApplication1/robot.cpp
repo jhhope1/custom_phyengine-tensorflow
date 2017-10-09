@@ -304,10 +304,10 @@ Robotbody::Robotbody() {
 	//set mass of body
 	m = 0.5L;
 	//initial location
-	rs = Vector(0, 0, 0.14L);
-	vs = Vector(0, 0.1L, 0);
+	rs = Vector(0, 0, 0.3L);
+	vs = Vector(2, 1L, 0);
 	q = Quat(0, 1.L, 0, 0);
-	w = Vector(0, 0.L, 0.L);
+	w = Vector(3.L, 2.L, -1.L);
 	lbtomot[0] = Vector(lxb / 2.L, lyb / 2.L, 0);
 	lbtomot[1] = Vector(-lxb / 2.L, lyb / 2.L, 0);
 	lbtomot[2] = Vector(lxb / 2.L, -lyb / 2.L, 0);
