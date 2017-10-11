@@ -100,17 +100,9 @@ pair<Vector,Vector> robot::timeflow(phys t = 0.0L) {
 			
 		lbtomots[0] = lbtomotb + l[0][0];
 		
-		IQsum[0] = Mat33(
-			L.sub[0].Ibdia.V[0] * Qsub[0].mat[0][0], L.sub[0].Ibdia.V[1] * Qsub[0].mat[1][0], L.sub[0].Ibdia.V[2] * Qsub[0].mat[2][0],
-			L.sub[0].Ibdia.V[0] * Qsub[0].mat[0][1], L.sub[0].Ibdia.V[1] * Qsub[0].mat[1][1], L.sub[0].Ibdia.V[2] * Qsub[0].mat[2][1],
-			L.sub[0].Ibdia.V[0] * Qsub[0].mat[0][2], L.sub[0].Ibdia.V[1] * Qsub[0].mat[1][2], L.sub[0].Ibdia.V[2] * Qsub[0].mat[2][2]
-		);
+		IQsum[0] = Qsub[0] % L.sub[0].Ibdia * Qsub[0].transpose();
 		for (int i = 1; i < numsubleg; i++) {
-			IQsum[i] = IQsum[i-1] + Mat33(
-				L.sub[i].Ibdia.V[0] * Qsub[i].mat[0][0], L.sub[i].Ibdia.V[1] * Qsub[i].mat[1][0], L.sub[i].Ibdia.V[2] * Qsub[i].mat[2][0],
-				L.sub[i].Ibdia.V[0] * Qsub[i].mat[0][1], L.sub[i].Ibdia.V[1] * Qsub[i].mat[1][1], L.sub[i].Ibdia.V[2] * Qsub[i].mat[2][1],
-				L.sub[i].Ibdia.V[0] * Qsub[i].mat[0][2], L.sub[i].Ibdia.V[1] * Qsub[i].mat[1][2], L.sub[i].Ibdia.V[2] * Qsub[i].mat[2][2]
-			);
+			IQsum[i] = IQsum[i - 1] + Qsub[i] % L.sub[i].Ibdia * Qsub[i].transpose();
 		}
 		for (int i = 0; i < numsubleg; i++) e[i] = Qsub[i] * L.sub[i].axis;
 		
@@ -146,15 +138,16 @@ pair<Vector,Vector> robot::timeflow(phys t = 0.0L) {
 		//Teqc = Teqc + (body.r-F.r)*F.F;
 		for (int i = 0; i < numsubleg; i++) {
 			Teqc = Teqc +
-				Vector(
+				Qsub[i]*Vector(
 					(L.sub[i].Ibdia.V[1] - L.sub[i].Ibdia.V[2])*w[i].V[1] * w[i].V[2],
 					(L.sub[i].Ibdia.V[2] - L.sub[i].Ibdia.V[0])*w[i].V[2] * w[i].V[0],
 					(L.sub[i].Ibdia.V[0] - L.sub[i].Ibdia.V[1])*w[i].V[0] * w[i].V[1]
 				);
 		}
 
-		for (int i = 0; i < numsubleg; i++) {
-			Teqc = Teqc - (IQsum[numsubleg - 1] - (i ? IQsum[i - 1] : Mat33()))* Qalpha[i];
+		Teqc = Teqc - (IQsum[0])* Qalpha[0];
+		for (int i = 1; i < numsubleg; i++) {
+			Teqc = Teqc - (IQsum[i] - IQsum[i - 1])* Qalpha[i];
 		}
 		Teqalpha = Teqalpha + D;
 		Teqalpha = Teqalpha + IQsum[numsubleg - 1];
@@ -177,13 +170,14 @@ pair<Vector,Vector> robot::timeflow(phys t = 0.0L) {
 			pos = body.rs + lbtomots[i] + l[i][1];
 			if (pos.V[2] < 0) {
 				if (vlegs.V[2] < 0) {
-					N = (0.005 - pos.V[2]) * Fupscale * Mtot * g;
+					N = Fupscale * Mtot * g;
 					Flist.push_back(Force(Vector(0,0,N),pos));
 				}
 				else {
-					N = (0.005 - pos.V[2]) * Fdownscale * Mtot * g;
+					N = Fdownscale * Mtot * g;
 					Flist.push_back(Force(Vector(0, 0, N), pos));
 				}
+				//cout << "F = " << Vector(0, 0, N) << "pos = " << pos << endl;
 				phys vnorm = sqrt(vlegs.V[0]*vlegs.V[0]+ vlegs.V[1] * vlegs.V[1]);
 				//if (i == numsubleg - 1) Flist.push_back(Force(Vector(pos.V[2]* vlegs.V[0]/(0.01+vnorm) * Fric, pos.V[2] * vlegs.V[1] / (0.01 + vnorm) * Fric , 0), pos));//leg의 끝에만 friction 작용
 			}
@@ -304,10 +298,10 @@ Robotbody::Robotbody() {
 	//set mass of body
 	m = 0.5L;
 	//initial location
-	rs = Vector(0, 0, 0.3L);
-	vs = Vector(2, 1L, 0);
+	rs = Vector(0, 0, 0.2L);
+	vs = Vector(0, 0.L, 0);
 	q = Quat(0, 1.L, 0, 0);
-	w = Vector(3.L, 2.L, -1.L);
+	w = Vector(0.1L, 0.L, 0.L);
 	lbtomot[0] = Vector(lxb / 2.L, lyb / 2.L, 0);
 	lbtomot[1] = Vector(-lxb / 2.L, lyb / 2.L, 0);
 	lbtomot[2] = Vector(lxb / 2.L, -lyb / 2.L, 0);
