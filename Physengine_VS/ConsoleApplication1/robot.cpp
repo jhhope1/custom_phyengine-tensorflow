@@ -177,6 +177,7 @@ pair<Vector,Vector> robot::timeflow(phys t = 0.0L) {
 					N = Fdownscale * Mtot * g;
 					Flist.push_back(Force(Vector(0, 0, N), pos));
 				}
+				//cout << "vlegs.V[2] = " << vlegs.V[2] << endl;
 				//cout << "F = " << Vector(0, 0, N) << "pos = " << pos << endl;
 				phys vnorm = sqrt(vlegs.V[0]*vlegs.V[0]+ vlegs.V[1] * vlegs.V[1]);
 				//if (i == numsubleg - 1) Flist.push_back(Force(Vector(pos.V[2]* vlegs.V[0]/(0.01+vnorm) * Fric, pos.V[2] * vlegs.V[1] / (0.01 + vnorm) * Fric , 0), pos));//leg의 끝에만 friction 작용
@@ -193,7 +194,7 @@ pair<Vector,Vector> robot::timeflow(phys t = 0.0L) {
 	Teqc = Teqc - (Qb%body.Ibdia)*Qdot.transpose()*wsb;
 	Teqalpha = Teqalpha + (Qb%body.Ibdia)*Qb.transpose();
 	Teqa = Matskew(sumML);
-
+	//cout << "Teqc = " << Teqc << endl << "Feqc / Mtot = " << Vector(Feqc *(1 / Mtot)) << endl<<endl;
 	//solving equation!!
 	
 	//cout << "sumML = "<<sumML << endl;
@@ -301,7 +302,7 @@ Robotbody::Robotbody() {
 	rs = Vector(0, 0, 0.2L);
 	vs = Vector(0, 0.L, 0);
 	q = Quat(0, 1.L, 0, 0);
-	w = Vector(0.1L, 0.L, 0.L);
+	w = Vector(0.L, 0.1L, 0.L);
 	lbtomot[0] = Vector(lxb / 2.L, lyb / 2.L, 0);
 	lbtomot[1] = Vector(-lxb / 2.L, lyb / 2.L, 0);
 	lbtomot[2] = Vector(lxb / 2.L, -lyb / 2.L, 0);
