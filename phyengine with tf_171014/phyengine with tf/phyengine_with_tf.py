@@ -4,10 +4,10 @@ import numpy as np
 numsubleg = 3
 numLeg = 4
 Mtot = 0.9849
-dtime = 0.01
+dtime = 0.001
 Fupscale = 3.
-Fdownscale = 1.
-Fricscale = Mtot*9.81*100.
+Fdownscale = 1.5
+Fricscale = Mtot*9.81*1.
 g = tf.constant([[0,0,-9.81]],dtype=tf.float64)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float64)
 Fdown = tf.constant([[0,0,Mtot*Fdownscale*9.81]],dtype=tf.float64)
@@ -15,7 +15,16 @@ Fadded = tf.constant([[0,0,Mtot*(Fupscale+Fdownscale)*9.81/2.]],dtype=tf.float64
 Fsubed = tf.constant([[0,0,Mtot*(Fupscale-Fdownscale)*9.81]],dtype=tf.float64)  
 Offset = tf.constant([[0,0,0.5]],dtype=tf.float64)
 MxMyFilter = tf.constant([[-1.,-1.,0]],dtype=tf.float64)
+
+#Variables
 global_step = tf.Variable(0,trainable = False, name = 'global_step')
+
+
+# 다리 정지해있는 물리엔진용 placeholders 잡기. 신경망에서는 지워야함
+prs = tf.placeholder(tf.float64, [1,3])
+pvs = tf.placeholder(tf.float64, [1,3])
+pwb = tf.placeholder(tf.float64, [1,3])
+pQb = tf.placeholder(tf.float64, [3,3])
 
 
 Destination = tf.placeholder(tf.float64, [None,3])
@@ -139,8 +148,6 @@ class robot:
                                     [0.,75.0e-5,0.],
                                     [0.,0.,50.0e-5]],dtype=tf.float64)
 
-        self.body.rs = tf.constant([0,0,0.3],dtype=tf.float64)
-        self.body.Q=tf.constant([[1,0,0],[0,1,0],[0,0,1]], dtype=tf.float64)
 
         
     def setalpha(self,t = 0.0):
@@ -195,16 +202,19 @@ class robot:
                mlsum += tf.scalar_mul(self.leg[p].sub[i].m, lbtomots[i])
 
            #Calculating External Forces
+           vs = self.body.vs
            for i in range(numsubleg):
-               Collision = tf.cast(tf.less(lbtomots[i]-self.body.rs,tf.zeros((1,3),dtype=tf.float64)),tf.float64)
-               vs = tf.cross(ws[i], lbtomots[i])
+               Collisiontemp = tf.cast(tf.less(lbtomots[i]+self.body.rs,tf.zeros((1,3),dtype=tf.float64)),tf.float64)
+               Collisionz = tf.multiply(Collisiontemp, tf.constant([[0,0,1]], tf.float64))
+               Collisionxy = tf.matmul(Collisionz, tf.constant([[0,0,0],[0,0,0],[1,1,0]], tf.float64))##더 연산량을 줄일 수 있을 듯 방법을 강구하라
+               vs += tf.cross(ws[i], ls[i][0]+ls[i][1])
                vCollision = tf.cast(tf.less( vs , tf.zeros((1,3),dtype=tf.float64) ),tf.float64)
-               Ftemp = tf.multiply((tf.ones((1,3), tf.float64)-Collision), Fadded + tf.multiply( (vCollision - Offset) , Fsubed ))
+               Ftemp = tf.multiply(Collisionz, Fadded + tf.multiply( (vCollision - Offset) , Fsubed ))
                Feqc += Ftemp
-               Teqc += tf.cross( lbtomots[i]-self.body.rs , Ftemp )
-               FrictionTemp = tf.scalar_mul( Fricscale , tf.multiply( MxMyFilter, vs ) )
+               Teqc += tf.cross( lbtomots[i] , Ftemp )
+               FrictionTemp = -tf.multiply(tf.scalar_mul( Fricscale , vs ), Collisionxy)##########하.. 힘이 너무 다 틀렸어
                Feqc += FrictionTemp
-               Teqc += tf.cross( lbtomots[i]-self.body.rs , FrictionTemp )
+               Teqc += tf.cross( lbtomots[i], FrictionTemp )
            
            A = [tf.cross(wbs,tf.cross(wbs,lbtomotbs)) 
                 + tf.cross(Qalpha[0],lbtomots[0]) 
@@ -271,7 +281,27 @@ class robot:
         return MWT
 R = robot()
 R.set_constants()
+print("set constant")
+print(1)
+R.body.rs = tf.constant([0,0,0.3],dtype=tf.float64)
+R.body.Q=tf.constant([[1,0,0],[0,1,0],[0,0,1]], dtype=tf.float64)
+
+R.body.rs = prs
+R.body.vs = pvs
+R.body.wb = pwb
+
 return_val = R.timeflow()
-for _ in range(1000):
-    sess=tf.Session()
-    print( "YAY body.rs = ", sess.run(return_val, feed_dict={Destination:[[0,0,0]]}))
+
+sess=tf.Session()
+tf.global_variables_initializer()
+nowrs = np.ones((1,3))
+nowvs = np.zeros((1,3))
+nowwb = np.zeros((1,3))
+nowQb = np.zeros((3,3))
+[nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+for i in range(100000):
+    [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] , feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+    if(i%100==0):
+        print("time = ", i*dtime)
+        print( "body.rs = ", nowrs)
+        print()
