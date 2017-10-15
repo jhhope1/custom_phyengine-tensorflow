@@ -1,5 +1,10 @@
 import tensorflow as tf
 import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+#from scipy.spatial import Delaunay
 
 timeN = 1
 numsubleg = 3
@@ -160,6 +165,7 @@ class robot:
         mlsum = tf.zeros((1,3),dtype=tf.float64)
         sumDs = tf.zeros((3,3),dtype=tf.float64)
         wbs = tf.matmul(self.body.wb, self.body.Q) #[1,3] matrix
+        tot_lbtomots = []
 
         for p in range(numLeg):
            for i in range(numsubleg):
@@ -260,6 +266,7 @@ class robot:
            #leg update
            #float32 -> float64 conversion : 171013 Fine
                #update 'Q's of leg - 20171012 fine
+           tot_lbtomots += lbtomots
         Teqalpha += tf.matmul( tf.matmul( self.body.Q , self.body.Ib , transpose_a = True) , self.body.Q)
         Teqc += tf.matmul( tf.cross( tf.matmul( self.body.wb , self.body.Ib ), self.body.wb) , self.body.Q)
         Teqc += tf.cross(mlsum, g)
@@ -276,7 +283,7 @@ class robot:
         self.body.vs+=tf.scalar_mul(dtime,asb)
         self.body.rs+=tf.scalar_mul(dtime,self.body.vs)
         MWT = lbtomotbs[0]
-        return MWT
+        return tot_lbtomots
 R = robot()
 R.set_constants()
 print("set constant")
@@ -306,6 +313,21 @@ for time in range(timeN):
             R.leg[p].sub[i].alpha = tf.reshape(alphatemp, [])
 
     return_val = R.timeflow()
+    ##############Trying to plot################
+    Plotlist=[R.body.rs]+return_val
+    #tri = Delaunay(Plotlist).convex_hull
+    fig = plt.figure(figsize=(8,8))
+    ax = fig.add_subplot(111,projection='3d')
+    S = ax.scatter(Plotlist[:,0],Plotlist[:,1],Plotlist[:,2])
+    ax.set_xlim3d(-0.5,0.5)
+    ax.set_ylim3d(-0.5,0.5)
+    ax.set_zlim3d(-0.1,0.9)
+    plt.title(str(dtime*time)+'s')
+    plt.draw()
+    plt.pause(0.001)
+    plt.clf()
+    ##############Required Tensorboard T.T###########
+
 cost = tf.reduce_mean(tf.square(R.body.rs-Destination))
 optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
 train_op=optimizer.minimize(cost)
