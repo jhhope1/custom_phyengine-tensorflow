@@ -1,5 +1,10 @@
 import tensorflow as tf
 import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+import itertools
 
 numsubleg = 3
 numLeg = 4
@@ -162,7 +167,7 @@ class robot:
         mlsum = tf.zeros((1,3),dtype=tf.float64)
         sumDs = tf.zeros((3,3),dtype=tf.float64)
         wbs = tf.matmul(self.body.wb, self.body.Q) #[1,3] matrix
-
+        tot_lbtomots = []
         for p in range(numLeg):
            for i in range(numsubleg):
                self.leg[p].sub[i].omega += self.leg[p].sub[i].alpha * dtime
@@ -262,6 +267,7 @@ class robot:
            #leg update
            #float32 -> float64 conversion : 171013 Fine
                #update 'Q's of leg - 20171012 fine
+           tot_lbtomots += lbtomots
         Teqalpha += tf.matmul( tf.matmul( self.body.Q , self.body.Ib , transpose_a = True) , self.body.Q)
         Teqc += tf.matmul( tf.cross( tf.matmul( self.body.wb , self.body.Ib ), self.body.wb) , self.body.Q)
         Teqc += tf.cross(mlsum, g)
@@ -278,7 +284,7 @@ class robot:
         self.body.vs+=tf.scalar_mul(dtime,asb)
         self.body.rs+=tf.scalar_mul(dtime,self.body.vs)
         MWT=self.leg[0].sub[1].Q
-        return MWT
+        return [x + self.body.rs for x in tot_lbtomots]
 R = robot()
 R.set_constants()
 print("set constant")
@@ -288,20 +294,41 @@ R.body.Q=tf.constant([[1,0,0],[0,1,0],[0,0,1]], dtype=tf.float64)
 R.body.rs = prs
 R.body.vs = pvs
 R.body.wb = pwb
+R.body.Q = pQb
 
 return_val = R.timeflow()
 
 sess=tf.Session()
 tf.global_variables_initializer()
-nowrs = np.ones((1,3))
+nowrs = np.array([[0,0,0.1]])
 nowvs = np.zeros((1,3))
 nowwb = np.zeros((1,3))
-nowQb = np.zeros((3,3))
+nowQb = np.array([[1,0,0],[0,1,0],[0,0,1]])
+return_val_mola=[]
 [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+plt.ion()
+fig = plt.figure(figsize=(8,8))
 for i in range(100000):
-    [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] , feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+    [nowrs, nowvs, nowwb, nowQb, return_val_mola] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q, return_val] , feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
     if(i%100==0):
-        print("time = ", i*dtime)
-        print( "body.rs = ", nowrs)
-        print()
+        #print("time = ", i*dtime)
+        #print( "body.rs = ", nowrs)
+        #print(return_val_mola)
+        Plotlist=return_val_mola.flatten()
+        pflat = Plotlist.tolist()
+        #print(len(Plotlist))
+        #tri = Delaunay(Plotlist).convex_hull
+        #fig = plt.figure(figsize=(8,8))
+        ax = fig.add_subplot(111,projection='3d')
+        #pflat = list(itertools.chain(*Plotlist))
+        print(pflat)
+        S = ax.scatter(pflat[0::3],pflat[1::3],pflat[2::3])
+        ax.set_xlim3d(-1,1)
+        ax.set_ylim3d(-1,1)
+        ax.set_zlim3d(-1,1)
+        plt.title(str(dtime*i)+'s')
+        plt.draw()
+        plt.pause(0.001)
+        plt.clf()
+        #print(Plotlist)
         #print(sess.run(return_val, feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb}))
