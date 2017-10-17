@@ -140,7 +140,7 @@ class robot:
             #set Initial theta conditions
             for i in range(numsubleg):
                 self.leg[p].sub[i].theta = tf.constant(0., dtype=tf.float64)
-            self.leg[p].sub[1].theta = tf.constant(np.pi / 2., dtype=tf.float64)
+            #self.leg[p].sub[1].theta = tf.constant(np.pi / 2., dtype=tf.float64)
 
         self.body.m = (0.2676 + 0.1414) \
                       +self.leg[0].sub[0].m \
@@ -170,14 +170,12 @@ class robot:
         tot_lbtomots = []
         for p in range(numLeg):
            for i in range(numsubleg):
-               self.leg[p].sub[i].omega += self.leg[p].sub[i].alpha * dtime
-               self.leg[p].sub[i].theta += self.leg[p].sub[i].omega * dtime
+               self.leg[p].sub[i].omega += self.leg[p].sub[i].alpha * dtime #omega를 시간에 따라 갱신
+               self.leg[p].sub[i].theta += self.leg[p].sub[i].omega * dtime #theta를 시간에 따라 갱신
                self.leg[p].sub[i].Q = tf.scalar_mul(tf.cos(self.leg[p].sub[i].theta), tf.eye(3, dtype=tf.float64)) + \
-               tf.scalar_mul(1.-tf.cos(self.leg[p].sub[i].theta), tf.matmul(self.leg[p].sub[i].axis,self.leg[p].sub[i].axis,transpose_a = True)) + \
-               tf.scalar_mul(tf.sin(self.leg[p].sub[i].theta) , tf.cross(tf.concat([self.leg[p].sub[i].axis,
-                                                                                    self.leg[p].sub[i].axis,
-                                                                                    self.leg[p].sub[i].axis],axis=0)
-                                                                                   ,tf.eye(3, dtype=tf.float64)))
+               tf.scalar_mul(1.-tf.cos(self.leg[p].sub[i].theta), tf.matmul(self.leg[p].sub[i].axis,self.leg[p].sub[i].axis,transpose_a = True)) - \
+               tf.scalar_mul(tf.sin(self.leg[p].sub[i].theta) , tf.cross(tf.tile(self.leg[p].sub[i].axis,[3,1]),tf.eye(3, dtype=tf.float64)))
+           MWT = self.leg[p].sub[i].Q
            Qs = [tf.matmul(self.leg[p].sub[0].Q , self.body.Q)]
            #List of rotation matrices of each sublegs in space frame
            #Type : list of [3,3] Tensor
@@ -283,8 +281,9 @@ class robot:
         self.body.Q += tf.scalar_mul(dtime,tf.cross(tf.concat([wbs, wbs,wbs], axis = 0),self.body.Q))
         self.body.vs+=tf.scalar_mul(dtime,asb)
         self.body.rs+=tf.scalar_mul(dtime,self.body.vs)
-        MWT=self.leg[0].sub[1].Q
-        return [x + self.body.rs for x in tot_lbtomots]
+        #MWT=self.leg[0].sub[1].Q
+        print(len(tot_lbtomots))
+        return MWT#[self.body.rs + x for x in tot_lbtomots]
 R = robot()
 R.set_constants()
 print("set constant")
@@ -305,6 +304,7 @@ nowvs = np.zeros((1,3))
 nowwb = np.zeros((1,3))
 nowQb = np.array([[1,0,0],[0,1,0],[0,0,1]])
 return_val_mola=[]
+print(sess.run(return_val, feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb}))
 [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
 plt.ion()
 fig = plt.figure(figsize=(8,8))
@@ -314,8 +314,9 @@ for i in range(100000):
         #print("time = ", i*dtime)
         #print( "body.rs = ", nowrs)
         #print(return_val_mola)
-        Plotlist=return_val_mola.flatten()
-        pflat = Plotlist.tolist()
+        pflat = np.reshape(return_val_mola, [-1])
+        #pflat = [x.tolist() for x in Plotlist]
+        #pflat = Plotlist.tolist()
         #print(len(Plotlist))
         #tri = Delaunay(Plotlist).convex_hull
         #fig = plt.figure(figsize=(8,8))
@@ -323,9 +324,9 @@ for i in range(100000):
         #pflat = list(itertools.chain(*Plotlist))
         print(pflat)
         S = ax.scatter(pflat[0::3],pflat[1::3],pflat[2::3])
-        ax.set_xlim3d(-1,1)
-        ax.set_ylim3d(-1,1)
-        ax.set_zlim3d(-1,1)
+        ax.set_xlim3d(-0.5,0.5)
+        ax.set_ylim3d(-0.5,0.5)
+        ax.set_zlim3d(0.0,1)
         plt.title(str(dtime*i)+'s')
         plt.draw()
         plt.pause(0.001)
