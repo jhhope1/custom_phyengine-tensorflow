@@ -10,8 +10,8 @@ numsubleg = 3
 numLeg = 4
 Mtot = 0.9849
 dtime = 0.001
-Fupscale = 3.
-Fdownscale = 1.5
+Fupscale = 1.5
+Fdownscale = 0.7
 Fricscale = Mtot*9.81*1.
 g = tf.constant([[0,0,-9.81]],dtype=tf.float64)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float64)
@@ -45,15 +45,22 @@ class Rigidbody:
 class Robotbody(Rigidbody):
     def __init__(self,m=0.0,rs=tf.zeros((1,3),dtype=tf.float64),vs=tf.zeros((1,3),dtype=tf.float64),lbtomot=[tf.zeros((1,3),dtype=tf.float64) for _ in range(numLeg)]):
         Rigidbody.__init__(self,m=m)
+        self.lbtomot=[tf.zeros((1,3),dtype=tf.float64) for _ in range(numLeg)]
+        self.lbtomot[0] = lbtomot[0]
+        self.lbtomot[1] = lbtomot[1]
+        self.lbtomot[2] = lbtomot[2]
+        self.lbtomot[3] = lbtomot[3]
         self.rs = rs
         self.vs = vs
         self.lbtomot = lbtomot
 
 class subleg(Rigidbody):
-    def __init__(self,m=0.0,axis=tf.zeros((1,3),dtype=tf.float64),l=[tf.zeros((1,3),dtype=tf.float64),tf.zeros((1,3),dtype=tf.float64)],theta=0.0,omega=0.0,alpha=0.0):
+    def __init__(self,m=0.0,axis=tf.zeros((1,3),dtype=tf.float64),l=[tf.zeros((1,3),dtype=tf.float64) for _ in range(2)],theta=0.0,omega=0.0,alpha=0.0):
         Rigidbody.__init__(self,m=m)
         self.axis = axis
-        self.l = l
+        self.l=[tf.zeros((1,3),dtype=tf.float64) for _ in range(2)]
+        self.l[0] = l[0]
+        self.l[1] = l[1]
         self.theta = theta
         self.omega = omega
         self.alpha = alpha
@@ -66,7 +73,7 @@ class robot:
     def __init__(self):
         self.body = Robotbody()
         self.leg = [Leg() for _ in range(numLeg)]
-    
+
     def set_constants(self):
         #Set Axes
         self.leg[0].sub[0].axis = tf.constant([[0.,1.,0.]],dtype=tf.float64)
@@ -149,11 +156,10 @@ class robot:
                       +(0.1583 + 0.2358)
 
         Mtot=self.body.m + 4 * (self.leg[0].sub[0].m+self.leg[0].sub[1].m+self.leg[0].sub[2].m)
+
         self.body.Ib = tf.constant([[75.0e-5,0.,0.],
                                     [0.,75.0e-5,0.],
                                     [0.,0.,50.0e-5]],dtype=tf.float64)
-
-
         
     def setalpha(self,t = 0.0):
         return None
@@ -173,7 +179,7 @@ class robot:
                self.leg[p].sub[i].omega += self.leg[p].sub[i].alpha * dtime
                self.leg[p].sub[i].theta += self.leg[p].sub[i].omega * dtime
                self.leg[p].sub[i].Q = tf.scalar_mul(tf.cos(self.leg[p].sub[i].theta), tf.eye(3, dtype=tf.float64)) + \
-               tf.scalar_mul(1.-tf.cos(self.leg[p].sub[i].theta), tf.matmul(self.leg[p].sub[i].axis,self.leg[p].sub[i].axis,transpose_a = True)) + \
+               tf.scalar_mul(1.-tf.cos(self.leg[p].sub[i].theta), tf.matmul(self.leg[p].sub[i].axis,self.leg[p].sub[i].axis,transpose_a = True)) - \
                tf.scalar_mul(tf.sin(self.leg[p].sub[i].theta) , tf.cross(tf.concat([self.leg[p].sub[i].axis,
                                                                                     self.leg[p].sub[i].axis,
                                                                                     self.leg[p].sub[i].axis],axis=0)
@@ -268,6 +274,7 @@ class robot:
            #float32 -> float64 conversion : 171013 Fine
                #update 'Q's of leg - 20171012 fine
            tot_lbtomots += lbtomots
+        MWT = self.leg[0].sub[0].l[0]
         Teqalpha += tf.matmul( tf.matmul( self.body.Q , self.body.Ib , transpose_a = True) , self.body.Q)
         Teqc += tf.matmul( tf.cross( tf.matmul( self.body.wb , self.body.Ib ), self.body.wb) , self.body.Q)
         Teqc += tf.cross(mlsum, g)
@@ -283,7 +290,6 @@ class robot:
         self.body.Q += tf.scalar_mul(dtime,tf.cross(tf.concat([wbs, wbs,wbs], axis = 0),self.body.Q))
         self.body.vs+=tf.scalar_mul(dtime,asb)
         self.body.rs+=tf.scalar_mul(dtime,self.body.vs)
-        MWT=self.leg[0].sub[1].Q
         return [x + self.body.rs for x in tot_lbtomots]
 R = robot()
 R.set_constants()
@@ -297,12 +303,11 @@ R.body.wb = pwb
 R.body.Q = pQb
 
 return_val = R.timeflow()
-
 sess=tf.Session()
 tf.global_variables_initializer()
-nowrs = np.array([[0,0,0.1]])
-nowvs = np.zeros((1,3))
-nowwb = np.zeros((1,3))
+nowrs = np.array([[0,0,0.5]])
+nowvs = np.array([[0,0,0]])
+nowwb = np.array([[0.5,0,0]])
 nowQb = np.array([[1,0,0],[0,1,0],[0,0,1]])
 return_val_mola=[]
 [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
@@ -311,24 +316,14 @@ fig = plt.figure(figsize=(8,8))
 for i in range(100000):
     [nowrs, nowvs, nowwb, nowQb, return_val_mola] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q, return_val] , feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
     if(i%100==0):
-        #print("time = ", i*dtime)
-        #print( "body.rs = ", nowrs)
-        #print(return_val_mola)
-        Plotlist=return_val_mola.flatten()
-        pflat = Plotlist.tolist()
-        #print(len(Plotlist))
-        #tri = Delaunay(Plotlist).convex_hull
-        #fig = plt.figure(figsize=(8,8))
+        [MWT] = sess.run([return_val] , feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+        pflat = np.reshape(MWT, [-1])
         ax = fig.add_subplot(111,projection='3d')
-        #pflat = list(itertools.chain(*Plotlist))
-        print(pflat)
         S = ax.scatter(pflat[0::3],pflat[1::3],pflat[2::3])
-        ax.set_xlim3d(-1,1)
-        ax.set_ylim3d(-1,1)
-        ax.set_zlim3d(-1,1)
+        ax.set_xlim3d(-0.5,0.5)
+        ax.set_ylim3d(-0.5,0.5)
+        ax.set_zlim3d(-0.,0.5)
         plt.title(str(dtime*i)+'s')
         plt.draw()
         plt.pause(0.001)
         plt.clf()
-        #print(Plotlist)
-        #print(sess.run(return_val, feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb}))
