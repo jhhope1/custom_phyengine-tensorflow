@@ -147,7 +147,7 @@ class robot:
             #set Initial theta conditions
             for i in range(numsubleg):
                 self.leg[p].sub[i].theta = tf.constant(0., dtype=tf.float64)
-            #self.leg[p].sub[1].theta = tf.constant(np.pi / 2., dtype=tf.float64)
+            self.leg[p].sub[1].theta = tf.constant(np.pi / 2., dtype=tf.float64)
 
         self.body.m = (0.2676 + 0.1414) \
                       +self.leg[0].sub[0].m \
@@ -180,15 +180,7 @@ class robot:
                self.leg[p].sub[i].theta += self.leg[p].sub[i].omega * dtime #theta를 시간에 따라 갱신
                self.leg[p].sub[i].Q = tf.scalar_mul(tf.cos(self.leg[p].sub[i].theta), tf.eye(3, dtype=tf.float64)) + \
                tf.scalar_mul(1.-tf.cos(self.leg[p].sub[i].theta), tf.matmul(self.leg[p].sub[i].axis,self.leg[p].sub[i].axis,transpose_a = True)) - \
-<<<<<<< HEAD
-               tf.scalar_mul(tf.sin(self.leg[p].sub[i].theta) , tf.cross(tf.concat([self.leg[p].sub[i].axis,
-                                                                                    self.leg[p].sub[i].axis,
-                                                                                    self.leg[p].sub[i].axis],axis=0)
-                                                                                   ,tf.eye(3, dtype=tf.float64)))
-=======
                tf.scalar_mul(tf.sin(self.leg[p].sub[i].theta) , tf.cross(tf.tile(self.leg[p].sub[i].axis,[3,1]),tf.eye(3, dtype=tf.float64)))
-           MWT = self.leg[p].sub[i].Q
->>>>>>> 6641dd61a46227c56f68a927a65002d2b4b60d9c
            Qs = [tf.matmul(self.leg[p].sub[0].Q , self.body.Q)]
            #List of rotation matrices of each sublegs in space frame
            #Type : list of [3,3] Tensor
@@ -279,7 +271,6 @@ class robot:
            #float32 -> float64 conversion : 171013 Fine
                #update 'Q's of leg - 20171012 fine
            tot_lbtomots += lbtomots
-        MWT = self.leg[0].sub[0].l[0]
         Teqalpha += tf.matmul( tf.matmul( self.body.Q , self.body.Ib , transpose_a = True) , self.body.Q)
         Teqc += tf.matmul( tf.cross( tf.matmul( self.body.wb , self.body.Ib ), self.body.wb) , self.body.Q)
         Teqc += tf.cross(mlsum, g)
@@ -295,13 +286,7 @@ class robot:
         self.body.Q += tf.scalar_mul(dtime,tf.cross(tf.concat([wbs, wbs,wbs], axis = 0),self.body.Q))
         self.body.vs+=tf.scalar_mul(dtime,asb)
         self.body.rs+=tf.scalar_mul(dtime,self.body.vs)
-<<<<<<< HEAD
         return [x + self.body.rs for x in tot_lbtomots]
-=======
-        #MWT=self.leg[0].sub[1].Q
-        print(len(tot_lbtomots))
-        return MWT#[self.body.rs + x for x in tot_lbtomots]
->>>>>>> 6641dd61a46227c56f68a927a65002d2b4b60d9c
 R = robot()
 R.set_constants()
 print("set constant")
@@ -321,36 +306,19 @@ nowvs = np.array([[0,0,0]])
 nowwb = np.array([[0.5,0,0]])
 nowQb = np.array([[1,0,0],[0,1,0],[0,0,1]])
 return_val_mola=[]
-print(sess.run(return_val, feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb}))
 [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
 plt.ion()
 fig = plt.figure(figsize=(8,8))
 for i in range(100000):
     [nowrs, nowvs, nowwb, nowQb, return_val_mola] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q, return_val] , feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
     if(i%100==0):
-<<<<<<< HEAD
         [MWT] = sess.run([return_val] , feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
         pflat = np.reshape(MWT, [-1])
-=======
-        #print("time = ", i*dtime)
-        #print( "body.rs = ", nowrs)
-        #print(return_val_mola)
-        pflat = np.reshape(return_val_mola, [-1])
-        #pflat = [x.tolist() for x in Plotlist]
-        #pflat = Plotlist.tolist()
-        #print(len(Plotlist))
-        #tri = Delaunay(Plotlist).convex_hull
-        #fig = plt.figure(figsize=(8,8))
->>>>>>> 6641dd61a46227c56f68a927a65002d2b4b60d9c
         ax = fig.add_subplot(111,projection='3d')
         S = ax.scatter(pflat[0::3],pflat[1::3],pflat[2::3])
         ax.set_xlim3d(-0.5,0.5)
         ax.set_ylim3d(-0.5,0.5)
-<<<<<<< HEAD
         ax.set_zlim3d(-0.,0.5)
-=======
-        ax.set_zlim3d(0.0,1)
->>>>>>> 6641dd61a46227c56f68a927a65002d2b4b60d9c
         plt.title(str(dtime*i)+'s')
         plt.draw()
         plt.pause(0.001)
