@@ -236,7 +236,7 @@ pair<Vector,Vector> robot::timeflow(phys t = 0.0L) {
 	Quat dq = (Mat44(body.w.V[0], body.w.V[1], body.w.V[2])*body.q)*0.5L; //¿ÀÂ÷?
 	body.q = body.q + dq*dtime;
 	
-	body.q.normalize();
+	//body.q.normalize();
 
 	return make_pair( asb,alphasb );
 }

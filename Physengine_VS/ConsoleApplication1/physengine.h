@@ -10,7 +10,7 @@ using phys = long double;
 //Basic physics constants
 const phys g = 9.81L;
 const phys pi = 3.14159265358979323846264338L;
-const phys dtime = 1e-3;
+const phys dtime = 1e-2;
 const phys Fupscale = 5.L;
 const phys Fdownscale = 2.L;
 const phys Fric = 1L;

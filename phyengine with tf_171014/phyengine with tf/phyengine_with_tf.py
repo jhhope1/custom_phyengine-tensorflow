@@ -10,16 +10,15 @@ numsubleg = 3
 numLeg = 4
 Mtot = 0.9849
 dtime = 0.001
-Fupscale = 1.5
+Fupscale = 3.
 Fdownscale = 0.7
-Fricscale = Mtot*9.81*1.
+Fricscale = Mtot*9.81*5.0
 g = tf.constant([[0,0,-9.81]],dtype=tf.float64)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float64)
 Fdown = tf.constant([[0,0,Mtot*Fdownscale*9.81]],dtype=tf.float64)
 Fadded = tf.constant([[0,0,Mtot*(Fupscale+Fdownscale)*9.81/2.]],dtype=tf.float64)
 Fsubed = tf.constant([[0,0,Mtot*(Fupscale-Fdownscale)*9.81]],dtype=tf.float64)  
 Offset = tf.constant([[0,0,0.5]],dtype=tf.float64)
-MxMyFilter = tf.constant([[-1.,-1.,0]],dtype=tf.float64)
 
 #Variables
 global_step = tf.Variable(0,trainable = False, name = 'global_step')
@@ -32,18 +31,15 @@ pwb = tf.placeholder(tf.float64, [1,3])
 pQb = tf.placeholder(tf.float64, [3,3])
 
 
-Destination = tf.placeholder(tf.float64, [None,3])
-rs_deprec = tf.placeholder(tf.float64, [None,3])
-
 class Rigidbody:
-    def __init__(self,m=0.0,Q=tf.zeros((3,3),dtype=tf.float64),Ib=tf.zeros((3,3),dtype=tf.float64),wb=tf.zeros((1,3),dtype=tf.float64)):
+    def __init__(self,m=0.0,Q=tf.eye(3,dtype=tf.float64),Ib=tf.zeros((3,3),dtype=tf.float64),wb=tf.zeros((1,3),dtype=tf.float64)):
         self.m = m
         self.Q = Q
         self.Ib = Ib
         self.wb = wb
-       
+
 class Robotbody(Rigidbody):
-    def __init__(self,m=0.0,rs=tf.zeros((1,3),dtype=tf.float64),vs=tf.zeros((1,3),dtype=tf.float64),lbtomot=[tf.zeros((1,3),dtype=tf.float64) for _ in range(numLeg)]):
+    def __init__(self,m=0.0, rs=tf.zeros((1,3), dtype=tf.float64), vs=tf.zeros((1,3), dtype=tf.float64), lbtomot = [tf.zeros((1,3),dtype=tf.float64) for _ in range(numLeg)]):
         Rigidbody.__init__(self,m=m)
         self.lbtomot=[tf.zeros((1,3),dtype=tf.float64) for _ in range(numLeg)]
         self.lbtomot[0] = lbtomot[0]
@@ -55,7 +51,7 @@ class Robotbody(Rigidbody):
         self.lbtomot = lbtomot
 
 class subleg(Rigidbody):
-    def __init__(self,m=0.0,axis=tf.zeros((1,3),dtype=tf.float64),l=[tf.zeros((1,3),dtype=tf.float64) for _ in range(2)],theta=0.0,omega=0.0,alpha=0.0):
+    def __init__(self,m=0.0,axis=tf.zeros((1,3),dtype=tf.float64),l = [tf.zeros((1,3),dtype=tf.float64) for _ in range(2)],theta=0.0,omega=0.0,alpha=0.0):
         Rigidbody.__init__(self,m=m)
         self.axis = axis
         self.l=[tf.zeros((1,3),dtype=tf.float64) for _ in range(2)]
@@ -112,14 +108,14 @@ class robot:
         self.leg[1].sub[2].l[0] = tf.constant([[0.,0.030,0.]],dtype=tf.float64)
         self.leg[1].sub[2].l[1] = tf.constant([[0.,0.070,0.]],dtype=tf.float64)
 
-        self.leg[2].sub[0].l[0] = tf.constant([[0.,-0.020,0.0]],dtype=tf.float64)
+        self.leg[2].sub[0].l[0] = tf.constant([[0.,-0.020,0.]],dtype=tf.float64)
         self.leg[2].sub[0].l[1] = tf.constant([[0.,0.,-0.015]],dtype=tf.float64)
         self.leg[2].sub[1].l[0] = tf.constant([[0.,-0.033,0.]],dtype=tf.float64)
         self.leg[2].sub[1].l[1] = tf.constant([[0.,-0.033,0.]],dtype=tf.float64)
         self.leg[2].sub[2].l[0] = tf.constant([[0.,-0.030,0.]],dtype=tf.float64)
         self.leg[2].sub[2].l[1] = tf.constant([[0.,-0.070,0.]],dtype=tf.float64)
 
-        self.leg[3].sub[0].l[0] = tf.constant([[0.,-0.020,0.0]],dtype=tf.float64)
+        self.leg[3].sub[0].l[0] = tf.constant([[0.,-0.020,0.]],dtype=tf.float64)
         self.leg[3].sub[0].l[1] = tf.constant([[0.,0.,-0.015]],dtype=tf.float64)
         self.leg[3].sub[1].l[0] = tf.constant([[0.,-0.033,0.]],dtype=tf.float64)
         self.leg[3].sub[1].l[1] = tf.constant([[0.,-0.033,0.]],dtype=tf.float64)
@@ -155,7 +151,7 @@ class robot:
                       -self.leg[0].sub[2].m \
                       +(0.1583 + 0.2358)
 
-        Mtot=self.body.m + 4 * (self.leg[0].sub[0].m+self.leg[0].sub[1].m+self.leg[0].sub[2].m)
+        Mtot = self.body.m + 4 * (self.leg[0].sub[0].m+self.leg[0].sub[1].m+self.leg[0].sub[2].m)
 
         self.body.Ib = tf.constant([[75.0e-5,0.,0.],
                                     [0.,75.0e-5,0.],
@@ -165,13 +161,14 @@ class robot:
         return None
     def timeflow(self,t = 0.0):
         self.setalpha(t)
-        Feqc = tf.scalar_mul(Mtot,g)
-        Feqa = tf.diag([Mtot,Mtot,Mtot])
-        Crossvec = tf.zeros((1,3),dtype=tf.float64)
-        Teqalpha = tf.zeros((3,3),dtype=tf.float64)
-        Teqc = tf.zeros((1,3),dtype=tf.float64)
-        mlsum = tf.zeros((1,3),dtype=tf.float64)
-        sumDs = tf.zeros((3,3),dtype=tf.float64)
+        Momentum = tf.matmul(tf.matmul(self.body.wb, self.body.Ib), self.body.Q)
+        Feqc = tf.scalar_mul(Mtot, g)
+        Feqa = tf.diag([Mtot, Mtot, Mtot])
+        Crossvec = tf.zeros((1,3), dtype=tf.float64)
+        Teqalpha = tf.zeros((3,3), dtype=tf.float64)
+        Teqc = tf.zeros((1,3), dtype=tf.float64)
+        mlsum = tf.zeros((1,3), dtype=tf.float64)
+        sumDs = tf.zeros((3,3), dtype=tf.float64)
         wbs = tf.matmul(self.body.wb, self.body.Q) #[1,3] matrix
         tot_lbtomots = []
         for p in range(numLeg):
@@ -179,17 +176,15 @@ class robot:
                self.leg[p].sub[i].omega += self.leg[p].sub[i].alpha * dtime #omega를 시간에 따라 갱신
                self.leg[p].sub[i].theta += self.leg[p].sub[i].omega * dtime #theta를 시간에 따라 갱신
                self.leg[p].sub[i].Q = tf.scalar_mul(tf.cos(self.leg[p].sub[i].theta), tf.eye(3, dtype=tf.float64)) + \
-               tf.scalar_mul(1.-tf.cos(self.leg[p].sub[i].theta), tf.matmul(self.leg[p].sub[i].axis,self.leg[p].sub[i].axis,transpose_a = True)) - \
-               tf.scalar_mul(tf.sin(self.leg[p].sub[i].theta) , tf.cross(tf.tile(self.leg[p].sub[i].axis,[3,1]),tf.eye(3, dtype=tf.float64)))
-           Qs = [tf.matmul(self.leg[p].sub[0].Q , self.body.Q)]
+               tf.scalar_mul(1.-tf.cos(self.leg[p].sub[i].theta), tf.matmul(self.leg[p].sub[i].axis, self.leg[p].sub[i].axis, transpose_a = True)) + \
+               tf.scalar_mul(tf.sin(self.leg[p].sub[i].theta), tf.cross(tf.tile(self.leg[p].sub[i].axis,[3,1]), tf.eye(3, dtype=tf.float64)))
+           Qs = [tf.matmul(self.leg[p].sub[0].Q , self.body.Q)] #Qs는 i번째 subleg에서 space로의 좌표변환
            #List of rotation matrices of each sublegs in space frame
            #Type : list of [3,3] Tensor
-           
            for i in range(1,numsubleg):
                Qs.append(tf.matmul(self.leg[p].sub[i].Q , Qs[i-1]))
-           
 
-           Is = [ tf.matmul( tf.matmul( Qs[i] , self.leg[p].sub[i].Ib , transpose_a = True) , Qs[i]) for i in range(numsubleg) ]\
+           Is = [ tf.matmul( tf.matmul(Qs[i] , self.leg[p].sub[i].Ib, transpose_a = True) , Qs[i]) for i in range(numsubleg) ]\
 
            e = [tf.matmul(self.leg[p].sub[i].axis, Qs[i]) for i in range(numsubleg)]
            #List of axes of each sublegs in space frame
@@ -204,19 +199,25 @@ class robot:
 
            ws = [wbs+Qw[0]]
            for i in range(1,numsubleg): 
-               ws.append(ws[i-1]+Qw[i])
+               ws.append(ws[i-1] + Qw[i])
 
-           w = [tf.matmul(ws[i],Qs[i], transpose_b = True) for i in range(numsubleg)]
+           w = [tf.matmul(ws[i], Qs[i], transpose_b = True) for i in range(numsubleg)]
 
            ls = [[tf.matmul(self.leg[p].sub[i].l[0],Qs[i]), 
                   tf.matmul(self.leg[p].sub[i].l[1],Qs[i])] for i in range(numsubleg)] #ls = 2Dtensor
 
            lbtomotbs = tf.matmul(self.body.lbtomot[p] , self.body.Q) # lbtomotbs = 2Dtensor
+
            lbtomots = [ lbtomotbs + ls[0][0] ] # lbtomots = 2Dtensor
+
            for i in range(1,numsubleg):
                lbtomots.append(lbtomots[i-1]+ls[i-1][1]+ls[i][0])
            for i in range(numsubleg):
                mlsum += tf.scalar_mul(self.leg[p].sub[i].m, lbtomots[i])
+           #각운동량 디버깅용
+           vmotbs = [tf.cross(wbs, lbtomotbs)+tf.cross(ws[0],ls[0][0])]
+           for i in range(1, numsubleg):
+               vmotbs.append(vmotbs[i-1]+tf.cross(ws[i-1],ls[i-1][1])+tf.cross(ws[i],ls[i][0]))
 
            #Calculating External Forces
            vs = self.body.vs
@@ -233,31 +234,31 @@ class robot:
                Feqc += FrictionTemp
                Teqc += tf.cross( lbtomots[i], FrictionTemp )
            
-           A = [tf.cross(wbs,tf.cross(wbs,lbtomotbs)) 
-                + tf.cross(Qalpha[0],lbtomots[0]) 
-                + tf.cross(ws[0], tf.cross(ws[0],lbtomots[0]))]
+           A = [tf.cross(wbs,tf.cross(wbs,lbtomotbs))
+                + tf.cross(Qalphasum[0],ls[0][0])
+                + tf.cross(ws[0], tf.cross(ws[0],ls[0][0]))]
 
            for i in range(1,numsubleg):
                A.append(
-                        tf.cross( Qalpha[i-1], ls[i-1][1] )
+                        tf.cross( Qalphasum[i-1], ls[i-1][1] )
+                        +tf.cross( Qalphasum[i], ls[i][0])
+                        +tf.cross( ws[i-1], tf.cross(ws[i-1], ls[i-1][1]))
                         +tf.cross( ws[i], tf.cross(ws[i], ls[i][0]))
-                        +tf.cross( Qalpha[i], ls[i][0])
                    )
 
            mlsquare = tf.zeros((1),dtype=tf.float64)
            for i in range(numsubleg):
-               mlsquare += tf.scalar_mul(self.leg[p].sub[i].m, 
+               mlsquare += tf.scalar_mul(self.leg[p].sub[i].m,
                                          tf.matmul(lbtomots[i],lbtomots[i],transpose_b=True))
            mlsquare = tf.reshape(mlsquare,[-1])
-
+           Dya = tf.zeros([3,3], dtype = tf.float64)
            for i in range(numsubleg):
-               Dya = tf.scalar_mul(self.leg[p].sub[i].m,tf.matmul(lbtomots[i],lbtomots[i],transpose_a=True))
-           
+               Dya += tf.scalar_mul(self.leg[p].sub[i].m,tf.matmul(lbtomots[i],lbtomots[i],transpose_a=True))
+           ###############
            Ds = tf.diag(tf.concat([mlsquare,mlsquare,mlsquare], axis=0)) - Dya
-           Teqalpha += Ds 
+           Teqalpha += Ds
            sumDs += Ds
            #Qb * Ib * Qb.transpose()
-
 
            for i in range(numsubleg):
                Feqc -= tf.scalar_mul(self.leg[p].sub[i].m,A[i])
@@ -266,53 +267,59 @@ class robot:
                Teqc -= tf.matmul( Qalphasum[i] , Is[i])
                Teqalpha += Is[i]
                #Qs_i * I_i * Qs_i^T
-
+           for i in range(numsubleg):
+               Momentum += tf.matmul(tf.matmul(w[i], self.leg[p].sub[i].Ib), Qs[i])
+               Momentum += tf.scalar_mul(self.leg[p].sub[i].m, tf.cross(lbtomots[i], vmotbs[i]))
            #leg update
            #float32 -> float64 conversion : 171013 Fine
                #update 'Q's of leg - 20171012 fine
            tot_lbtomots += lbtomots
-        Teqalpha += tf.matmul( tf.matmul( self.body.Q , self.body.Ib , transpose_a = True) , self.body.Q)
+        Teqalpha += tf.matmul( tf.matmul( self.body.Q , self.body.Ib, transpose_a = True) , self.body.Q)
         Teqc += tf.matmul( tf.cross( tf.matmul( self.body.wb , self.body.Ib ), self.body.wb) , self.body.Q)
         Teqc += tf.cross(mlsum, g)
         Teqanorm = tf.reshape(tf.matmul(mlsum, mlsum, transpose_b = True),[-1])
-        alphabs = tf.matmul( 
-        Teqc - tf.scalar_mul(1./Mtot, tf.cross(mlsum,Feqc)),
-        tf.matrix_inverse(
-            Teqalpha - tf.scalar_mul(1./Mtot , 
-            tf.diag(tf.concat([Teqanorm,Teqanorm,Teqanorm], axis=0)) - tf.matmul(mlsum,mlsum,transpose_a = True))
-        ))
+        alphabs = tf.matmul(
+            Teqc - tf.scalar_mul(1./Mtot, tf.cross(mlsum,Feqc)),
+            tf.matrix_inverse(
+                Teqalpha + tf.scalar_mul(1./Mtot , 
+                tf.diag(tf.concat([Teqanorm,Teqanorm,Teqanorm], axis=0)) - tf.matmul(mlsum,mlsum,transpose_a = True))#여기가 너무 헷갈림.......
+            )
+        )
         asb = tf.scalar_mul(1./Mtot, Feqc - tf.cross(mlsum,alphabs))
-        self.body.wb += tf.scalar_mul(dtime, alphabs)
-        self.body.Q += tf.scalar_mul(dtime,tf.cross(tf.concat([wbs, wbs,wbs], axis = 0),self.body.Q))
-        self.body.vs+=tf.scalar_mul(dtime,asb)
-        self.body.rs+=tf.scalar_mul(dtime,self.body.vs)
-        return [x + self.body.rs for x in tot_lbtomots]
+        alphab = tf.matmul(alphabs, self.body.Q, transpose_b = True)
+        self.body.wb += tf.scalar_mul(dtime, alphab)
+        self.body.Q += tf.scalar_mul(dtime,tf.cross(tf.concat([wbs, wbs, wbs], axis = 0),self.body.Q))
+        self.body.vs += tf.scalar_mul(dtime,asb)
+        self.body.rs += tf.scalar_mul(dtime,self.body.vs)
+        return Momentum, [x + self.body.rs for x in tot_lbtomots]
+
 R = robot()
 R.set_constants()
 print("set constant")
-R.body.rs = tf.constant([0,0,0.3],dtype=tf.float64)
-R.body.Q=tf.constant([[1,0,0],[0,1,0],[0,0,1]], dtype=tf.float64)
 
 R.body.rs = prs
 R.body.vs = pvs
 R.body.wb = pwb
 R.body.Q = pQb
 
-return_val = R.timeflow()
+Momentumval, return_val = R.timeflow()
+detQ = tf.cast(tf.matrix_determinant(R.body.Q), tf.float64)
+#R.body.Q = tf.scalar_mul(1/tf.pow(detQ, 1/3.),R.body.Q)
 sess=tf.Session()
 tf.global_variables_initializer()
-nowrs = np.array([[0,0,0.5]])
-nowvs = np.array([[0,0,0]])
-nowwb = np.array([[0.5,0,0]])
-nowQb = np.array([[1,0,0],[0,1,0],[0,0,1]])
+nowrs = np.array([[0.,0.,0.5]])
+nowvs = np.array([[0.,0.,0.]])
+nowwb = np.array([[0.5,0.3,0.3]])
+nowQb = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 return_val_mola=[]
-[nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+[nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
 plt.ion()
 fig = plt.figure(figsize=(8,8))
 for i in range(100000):
-    [nowrs, nowvs, nowwb, nowQb, return_val_mola] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q, return_val] , feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+    [nowrs, nowvs, nowwb, nowQb, MWT] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q, return_val] , feed_dict={ prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
     if(i%100==0):
-        [MWT] = sess.run([return_val] , feed_dict={Destination:[[0,0,0]], prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+        [Momentum,MWT] = sess.run([Momentumval, return_val] , feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+        print(Momentum)
         pflat = np.reshape(MWT, [-1])
         ax = fig.add_subplot(111,projection='3d')
         S = ax.scatter(pflat[0::3],pflat[1::3],pflat[2::3])
