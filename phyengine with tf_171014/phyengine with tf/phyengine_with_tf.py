@@ -12,7 +12,7 @@ Mtot = 0.9849
 dtime = 0.001
 Fupscale = 3
 Fdownscale = 0.7
-Fricscale = Mtot*9.81*5.0
+Fricscale = Mtot*9.81*2.
 g = tf.constant([[0.,0.,-9.81]],dtype=tf.float64)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float64)
 Fdown = tf.constant([[0,0,Mtot*Fdownscale*9.81]],dtype=tf.float64)
