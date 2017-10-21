@@ -10,10 +10,10 @@ numsubleg = 3
 numLeg = 4
 Mtot = 0.9849
 dtime = 0.001
-Fupscale = 3.
+Fupscale = 3
 Fdownscale = 0.7
 Fricscale = Mtot*9.81*5.0
-g = tf.constant([[0.,0.,0.]],dtype=tf.float64)
+g = tf.constant([[0.,0.,-9.81]],dtype=tf.float64)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float64)
 Fdown = tf.constant([[0,0,Mtot*Fdownscale*9.81]],dtype=tf.float64)
 Fadded = tf.constant([[0,0,Mtot*(Fupscale+Fdownscale)*9.81/2.]],dtype=tf.float64)
@@ -221,7 +221,7 @@ class robot:
            #Calculating External Forces
            vs = self.body.vs
            for i in range(numsubleg):
-               Collisiontemp = tf.cast(tf.less(lbtomots[i]+self.body.rs+ls[i][1],tf.zeros((1,3),dtype=tf.float64)),tf.float64)
+               Collisiontemp = tf.cast(tf.less(lbtomots[i]+ls[i][1]+self.body.rs,tf.zeros((1,3),dtype=tf.float64)),tf.float64)
                Collisionz = tf.multiply(Collisiontemp, tf.constant([[0,0,1]], tf.float64))
                Collisionxy = tf.matmul(Collisionz, tf.constant([[0,0,0],[0,0,0],[1,1,0]], tf.float64))##더 연산량을 줄일 수 있을 듯 방법을 강구하라
                vs += tf.cross(ws[i], ls[i][0]+ls[i][1])
@@ -276,12 +276,12 @@ class robot:
         Teqalpha += tf.matmul( tf.matmul( self.body.Q , self.body.Ib, transpose_a = True) , self.body.Q)
         Teqc += tf.matmul( tf.cross( tf.matmul( self.body.wb , self.body.Ib ), self.body.wb) , self.body.Q)
         Teqc += tf.cross(mlsum, g)
-        Teqanorm = tf.reshape(tf.matmul(mlsum, mlsum, transpose_b = True),[-1])
+        Teqanorm = tf.reduce_sum(tf.square(mlsum))
         alphabs = tf.matmul(
             Teqc - tf.scalar_mul(1./Mtot, tf.cross(mlsum,Feqc)),
             tf.matrix_inverse(
                 Teqalpha + tf.scalar_mul(1./Mtot , 
-                tf.diag(tf.concat([Teqanorm,Teqanorm,Teqanorm], axis=0)) - tf.matmul(mlsum,mlsum,transpose_a = True))#여기가 너무 헷갈림.......
+                Teqanorm*tf.eye(3, dtype = tf.float64) - tf.matmul(mlsum,mlsum,transpose_a = True))#여기가 너무 헷갈림.......
             )
         )
         asb = tf.scalar_mul(1./Mtot, Feqc - tf.cross(mlsum,alphabs))
@@ -294,7 +294,7 @@ class robot:
         # Q to quaternion
         
         qw = tf.scalar_mul(0.5, tf.sqrt(tf.reduce_sum(tf.diag_part(self.body.Q))+1.))
-        qv = tf.reduce_sum(tf.cross(self.body.Q, tf.eye(3, dtype = tf.float64)), axis = 0)/tf.scalar_mul(4., qw)
+        qv = -tf.reduce_sum(tf.cross(self.body.Q, tf.eye(3, dtype = tf.float64)), axis = 0)/tf.scalar_mul(4., qw)
 
         # quaternion normalization
 
@@ -306,7 +306,7 @@ class robot:
 
         self.body.Q = tf.scalar_mul(qw*qw-qvsquare,tf.eye(3, dtype = tf.float64))\
             + 2 * tf.matmul(tf.reshape(qv, [3, 1]), tf.reshape(qv, [1, 3]))\
-            - 2 * qw * tf.cross(tf.tile(tf.reshape(qv, [1,3]), [3,1]), tf.eye(3, dtype = tf.float64))
+            + 2 * qw * tf.cross(tf.tile(tf.reshape(qv, [1,3]), [3,1]), tf.eye(3, dtype = tf.float64))
 
         return Momentum, [x + self.body.rs for x in tot_lbtomots]
 
@@ -326,7 +326,7 @@ sess=tf.Session()
 tf.global_variables_initializer()
 nowrs = np.array([[0.,0.,0.5]])
 nowvs = np.array([[0.,0.,0.]])
-nowwb = np.array([[0.5,0.3,0.3]])
+nowwb = np.array([[0.5,0.2,0.1]])
 nowQb = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 return_val_mola=[]
 [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
@@ -334,7 +334,7 @@ plt.ion()
 fig = plt.figure(figsize=(8,8))
 for i in range(100000):
     [nowrs, nowvs, nowwb, nowQb, MWT] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q, return_val] , feed_dict={ prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
-    if(i%100==0):
+    if(i%20==0):
         [Momentum,MWT] = sess.run([Momentumval, return_val] , feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
         print(Momentum)
         pflat = np.reshape(MWT, [-1])
