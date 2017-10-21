@@ -13,7 +13,7 @@ dtime = 0.001
 Fupscale = 3.
 Fdownscale = 0.7
 Fricscale = Mtot*9.81*5.0
-g = tf.constant([[0,0,-9.81]],dtype=tf.float64)
+g = tf.constant([[0,0,0]],dtype=tf.float64)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float64)
 Fdown = tf.constant([[0,0,Mtot*Fdownscale*9.81]],dtype=tf.float64)
 Fadded = tf.constant([[0,0,Mtot*(Fupscale+Fdownscale)*9.81/2.]],dtype=tf.float64)
@@ -124,7 +124,7 @@ class robot:
 
         #set Mass
         for p in range(numLeg):
-            self.leg[p].sub[0].m = tf.constant(0.0550,dtype=tf.float64) #kg
+            '''self.leg[p].sub[0].m = tf.constant(0.0550,dtype=tf.float64) #kg
             self.leg[p].sub[1].m = tf.constant(0.0294,dtype=tf.float64)
             self.leg[p].sub[2].m = tf.constant(0.0709,dtype=tf.float64)
 
@@ -139,7 +139,7 @@ class robot:
 
             self.leg[p].sub[2].Ib = tf.constant([[2.00e-5,0.,0.],
                                                  [0.,1.40e-5,0.],
-                                                 [0.,0.,2.20e-5]],dtype=tf.float64)
+                                                 [0.,0.,2.20e-5]],dtype=tf.float64)'''
             #set Initial theta conditions
             for i in range(numsubleg):
                 self.leg[p].sub[i].theta = tf.constant(0., dtype=tf.float64)
@@ -269,7 +269,7 @@ class robot:
                #Qs_i * I_i * Qs_i^T
            for i in range(numsubleg):
                Momentum += tf.matmul(tf.matmul(w[i], self.leg[p].sub[i].Ib), Qs[i])
-               Momentum += tf.scalar_mul(self.leg[p].sub[i].m, tf.cross(lbtomots[i], vmotbs[i]))
+               Momentum += tf.scalar_mul(self.leg[p].sub[i].m, tf.cross(lbtomots[i] + self.body.rs, vmotbs[i]+self.body.vs))
            #leg update
            #float32 -> float64 conversion : 171013 Fine
                #update 'Q's of leg - 20171012 fine
@@ -291,6 +291,23 @@ class robot:
         self.body.Q += tf.scalar_mul(dtime,tf.cross(tf.concat([wbs, wbs, wbs], axis = 0),self.body.Q))
         self.body.vs += tf.scalar_mul(dtime,asb)
         self.body.rs += tf.scalar_mul(dtime,self.body.vs)
+
+        # Q to quaternion
+        
+        qw = tf.scalarmul(0.5, tf.sqrt(tf.reduce_sum(tf.diag_part(self.body.Q))+1.))
+        qv = tf.reduce_sum(tf.cross(self.body.Q, tf.eye(3)), axis = 0)/tf.scalar_mul(4., qw)
+
+        # quaternion normalization
+
+        qnorm = tf.sqrt(tf.square(qw)+tf.reduce_sum(tf.square(qv)))
+        qw/=qnorm
+        qv/=qnorm
+
+
+        # quaternion to Q
+
+
+
         return Momentum, [x + self.body.rs for x in tot_lbtomots]
 
 R = robot()
