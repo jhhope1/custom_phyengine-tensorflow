@@ -13,7 +13,7 @@ dtime = 0.001
 Fupscale = 3.
 Fdownscale = 0.7
 Fricscale = Mtot*9.81*5.0
-g = tf.constant([[0,0,0]],dtype=tf.float64)
+g = tf.constant([[0.,0.,0.]],dtype=tf.float64)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float64)
 Fdown = tf.constant([[0,0,Mtot*Fdownscale*9.81]],dtype=tf.float64)
 Fadded = tf.constant([[0,0,Mtot*(Fupscale+Fdownscale)*9.81/2.]],dtype=tf.float64)
@@ -123,7 +123,7 @@ class robot:
 
         #set Mass
         for p in range(numLeg):
-            '''self.leg[p].sub[0].m = tf.constant(0.0550,dtype=tf.float64) #kg
+            self.leg[p].sub[0].m = tf.constant(0.0550,dtype=tf.float64) #kg
             self.leg[p].sub[1].m = tf.constant(0.0294,dtype=tf.float64)
             self.leg[p].sub[2].m = tf.constant(0.0709,dtype=tf.float64)
 
@@ -138,7 +138,7 @@ class robot:
 
             self.leg[p].sub[2].Ib = tf.constant([[2.00e-5,0.,0.],
                                                  [0.,1.40e-5,0.],
-                                                 [0.,0.,2.20e-5]],dtype=tf.float64)'''
+                                                 [0.,0.,2.20e-5]],dtype=tf.float64)
             #set Initial theta conditions
             for i in range(numsubleg):
                 self.leg[p].sub[i].theta = tf.constant(0., dtype=tf.float64)
@@ -160,7 +160,7 @@ class robot:
         return None
     def timeflow(self,t = 0.0):
         self.setalpha(t)
-        Momentum = tf.matmul(tf.matmul(self.body.wb, self.body.Ib), self.body.Q)
+        Momentum = tf.matmul(tf.matmul(self.body.wb, self.body.Ib), self.body.Q) + tf.scalar_mul(self.body.m , tf.cross(self.body.rs, self.body.vs))
         Feqc = tf.scalar_mul(Mtot, g)
         Feqa = tf.diag([Mtot, Mtot, Mtot])
         Crossvec = tf.zeros((1,3), dtype=tf.float64)
@@ -183,7 +183,7 @@ class robot:
            for i in range(1,numsubleg):
                Qs.append(tf.matmul(self.leg[p].sub[i].Q , Qs[i-1]))
 
-           Is = [ tf.matmul( tf.matmul(Qs[i] , self.leg[p].sub[i].Ib, transpose_a = True) , Qs[i]) for i in range(numsubleg) ]\
+           Is = [ tf.matmul( tf.matmul(Qs[i] , self.leg[p].sub[i].Ib, transpose_a = True) , Qs[i]) for i in range(numsubleg) ]
 
            e = [tf.matmul(self.leg[p].sub[i].axis, Qs[i]) for i in range(numsubleg)]
            #List of axes of each sublegs in space frame
@@ -221,17 +221,17 @@ class robot:
            #Calculating External Forces
            vs = self.body.vs
            for i in range(numsubleg):
-               Collisiontemp = tf.cast(tf.less(lbtomots[i]+self.body.rs,tf.zeros((1,3),dtype=tf.float64)),tf.float64)
+               Collisiontemp = tf.cast(tf.less(lbtomots[i]+self.body.rs+ls[i][1],tf.zeros((1,3),dtype=tf.float64)),tf.float64)
                Collisionz = tf.multiply(Collisiontemp, tf.constant([[0,0,1]], tf.float64))
                Collisionxy = tf.matmul(Collisionz, tf.constant([[0,0,0],[0,0,0],[1,1,0]], tf.float64))##더 연산량을 줄일 수 있을 듯 방법을 강구하라
                vs += tf.cross(ws[i], ls[i][0]+ls[i][1])
                vCollision = tf.cast(tf.less( vs , tf.zeros((1,3),dtype=tf.float64) ),tf.float64)
                Ftemp = tf.multiply(Collisionz, Fadded + tf.multiply( (vCollision - Offset) , Fsubed ))
                Feqc += Ftemp
-               Teqc += tf.cross( lbtomots[i] , Ftemp )
+               Teqc += tf.cross( lbtomots[i] + ls[i][1], Ftemp )
                FrictionTemp = -tf.multiply(tf.scalar_mul( Fricscale , vs ), Collisionxy)##########하.. 힘이 너무 다 틀렸어
                Feqc += FrictionTemp
-               Teqc += tf.cross( lbtomots[i], FrictionTemp )
+               Teqc += tf.cross( lbtomots[i] + ls[i][1], FrictionTemp )
            
            A = [tf.cross(wbs,tf.cross(wbs,lbtomotbs))
                 + tf.cross(Qalphasum[0],ls[0][0])
