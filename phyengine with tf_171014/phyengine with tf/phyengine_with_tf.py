@@ -30,7 +30,6 @@ pvs = tf.placeholder(tf.float64, [1,3])
 pwb = tf.placeholder(tf.float64, [1,3])
 pQb = tf.placeholder(tf.float64, [3,3])
 
-
 class Rigidbody:
     def __init__(self,m=0.0,Q=tf.eye(3,dtype=tf.float64),Ib=tf.zeros((3,3),dtype=tf.float64),wb=tf.zeros((1,3),dtype=tf.float64)):
         self.m = m
@@ -294,19 +293,20 @@ class robot:
 
         # Q to quaternion
         
-        qw = tf.scalarmul(0.5, tf.sqrt(tf.reduce_sum(tf.diag_part(self.body.Q))+1.))
-        qv = tf.reduce_sum(tf.cross(self.body.Q, tf.eye(3)), axis = 0)/tf.scalar_mul(4., qw)
+        qw = tf.scalar_mul(0.5, tf.sqrt(tf.reduce_sum(tf.diag_part(self.body.Q))+1.))
+        qv = tf.reduce_sum(tf.cross(self.body.Q, tf.eye(3, dtype = tf.float64)), axis = 0)/tf.scalar_mul(4., qw)
 
         # quaternion normalization
 
-        qnorm = tf.sqrt(tf.square(qw)+tf.reduce_sum(tf.square(qv)))
-        qw/=qnorm
-        qv/=qnorm
-
-
+        qvsquare = tf.reduce_sum(tf.square(qv))
+        qnorm = tf.sqrt(tf.square(qw)+qvsquare)
+        qw /= qnorm
+        qv /= qnorm
         # quaternion to Q
 
-
+        self.body.Q = tf.scalar_mul(qw*qw-qvsquare,tf.eye(3, dtype = tf.float64))\
+            + 2 * tf.matmul(tf.reshape(qv, [3, 1]), tf.reshape(qv, [1, 3]))\
+            - 2 * qw * tf.cross(tf.tile(tf.reshape(qv, [1,3]), [3,1]), tf.eye(3, dtype = tf.float64))
 
         return Momentum, [x + self.body.rs for x in tot_lbtomots]
 
