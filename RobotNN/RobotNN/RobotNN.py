@@ -1,9 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
 #from scipy.spatial import Delaunay
 
 timeN = 2000
