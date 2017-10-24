@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 #from scipy.spatial import Delaunay
 
-timeN = 2
+timeN = 2000
 numsubleg = 3
 numLeg = 4
 Mtot = 0.9849
