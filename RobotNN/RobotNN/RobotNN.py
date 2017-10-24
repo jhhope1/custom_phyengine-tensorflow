@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 #from scipy.spatial import Delaunay
 
-timeN = 10
+timeN = 2
 numsubleg = 3
 numLeg = 4
 Mtot = 0.9849
@@ -357,14 +357,24 @@ for time in range(timeN):
 optimizer = tf.train.AdamOptimizer(learning_rate=10)
 train_op=optimizer.minimize(cost)
 
+sess = tf.Session()
+'''
 init=tf.global_variables_initializer()
 sess=tf.Session()
 sess.run(init)
+'''
 
 nowrs = np.array([[0,0,0.1]])
 nowvs = np.zeros((1,3))
 nowwb = np.zeros((1,3))
 nowQb = np.array([[1,0,0],[0,1,0],[0,0,1]])
+
+ckpt = tf.train.get_checkpoint_state('./model')
+if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
+    saver.restore(sess,ckpt.model_checkpoint_path)
+else:
+    sess.run(tf.global_variables_initializer())
+
 for i in range(100000):
     _, printcost = sess.run([train_op, cost])
     if i%100 == 0:
@@ -374,3 +384,6 @@ for i in range(100000):
                 print("alpha : ",sess.run(R.leg[p].sub[j].alpha),end=' ')
                 print("omega : ",sess.run(R.leg[p].sub[j].omega),end=' ')
                 print("theta : ",sess.run(R.leg[p].sub[j].theta),end='\n')
+
+        saver = tf.train.Saver(tf.global_variables())
+        saver.save(sess, './model/RobotNN.ckpt',global_step = global_step)
