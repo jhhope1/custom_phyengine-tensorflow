@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 #from scipy.spatial import Delaunay
 
-timeN = 2000
+timeN = 10
 numsubleg = 3
 numLeg = 4
 Mtot = 0.9849
@@ -14,7 +14,7 @@ dtime = 0.01
 Fupscale = 1.
 Fdownscale = 0.5
 Fricscale = Mtot*9.81*1.
-wall = 1.
+wall = tf.constant([1.])
 g = tf.constant([[0,0,-9.81]],dtype=tf.float32)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float32)
 Fdown = tf.constant([[0,0,Mtot*Fdownscale*9.81]],dtype=tf.float32)
@@ -25,17 +25,17 @@ V_goal = tf.constant([[0.06,0.,0.]], dtype = tf.float32)
 truetensor = tf.constant([True],dtype=tf.bool)
 
 #Theta lock
-theta_ub = [tf.constant([-np.pi/6.]), tf.constant([np.pi/5.]), tf.constant([np.pi/5.])]
-theta_lb = [tf.constant([-np.pi/1.5]), tf.constant([-np.pi/8.]), tf.constant([np.pi/8.])]
+theta_ub = [tf.constant([np.pi/5.]), tf.constant([-np.pi/6.]), tf.constant([np.pi/5.])]
+theta_lb = [tf.constant([-np.pi/8.]), tf.constant([-np.pi/1.5]), tf.constant([-np.pi/8.])]
 
 #Variables
 global_step = tf.Variable(0,trainable = False, name = 'global_step')
-W1=tf.Variable(tf.random_uniform([33,20], -0.01, 0.01,dtype=tf.float32), dtype=tf.float32)
-W2=tf.Variable(tf.random_uniform([20,12], -0.01, 0.01,dtype=tf.float32), dtype=tf.float32)
-
+W1=tf.Variable(tf.random_uniform([33,20], -1, 1,dtype=tf.float32), dtype=tf.float32)
+W2=tf.Variable(tf.random_uniform([20,12], -1, 1,dtype=tf.float32), dtype=tf.float32)
+b1 = tf.Variable(tf.zeros([20]))
 
 class Rigidbody:
-    def __init__(self,m=0.0,Q=tf.zeros((3,3),dtype=tf.float32),Ib=tf.zeros((3,3),dtype=tf.float32),wb=tf.zeros((1,3),dtype=tf.float32)):
+    def __init__(self,m=0.0,Q=tf.eye(3,dtype=tf.float32),Ib=tf.zeros((3,3),dtype=tf.float32),wb=tf.zeros((1,3),dtype=tf.float32)):
         self.m = m
         self.Q = Q
         self.Ib = Ib
@@ -167,10 +167,7 @@ class robot:
                                     [0.,75.0e-5,0.],
                                     [0.,0.,50.0e-5]],dtype=tf.float32)
         
-    def setalpha(self,t = 0.0):
-        return None
     def timeflow(self,t = 0.0):
-        self.setalpha(t)
         Momentum = tf.matmul(tf.matmul(self.body.wb, self.body.Ib), self.body.Q) + tf.scalar_mul(self.body.m , tf.cross(self.body.rs, self.body.vs))
         Feqc = tf.scalar_mul(Mtot, g)
         Feqa = tf.diag([Mtot, Mtot, Mtot])
@@ -185,9 +182,10 @@ class robot:
            for i in range(numsubleg):
                self.leg[p].sub[i].omega += self.leg[p].sub[i].alpha * dtime #omega를 시간에 따라 갱신
                self.leg[p].sub[i].theta += self.leg[p].sub[i].omega * dtime #theta를 시간에 따라 갱신
-               print(tf.reshape(self.leg[p].sub[i].theta, []))
-               self.leg[p].sub[i].Q = tf.scalar_mul(tf.cos(self.leg[p].sub[i].theta), tf.eye(3, dtype=tf.float32)) + \
-               tf.scalar_mul(tf.constant(1.)-tf.cos(tf.reshape(self.leg[p].sub[i].theta, [])), tf.matmul(self.leg[p].sub[i].axis, self.leg[p].sub[i].axis, transpose_a = True)) + \
+               #print(tf.reshape(self.leg[p].sub[i].theta, []))
+               #print(tf.constant(1.)-tf.reshape(tf.cos(self.leg[p].sub[i].theta),[]))
+               self.leg[p].sub[i].Q = tf.scalar_mul( tf.reshape(tf.cos(self.leg[p].sub[i].theta),[] ) , tf.eye(3, dtype=tf.float32)) + \
+               tf.scalar_mul(tf.constant(1.)-tf.reshape(tf.cos(self.leg[p].sub[i].theta), []), tf.matmul(self.leg[p].sub[i].axis, self.leg[p].sub[i].axis, transpose_a = True)) + \
                tf.scalar_mul(tf.sin(tf.reshape(self.leg[p].sub[i].theta,[])), tf.cross(tf.tile(self.leg[p].sub[i].axis,[3,1]), tf.eye(3, dtype=tf.float32)))
            Qs = [tf.matmul(self.leg[p].sub[0].Q , self.body.Q)] #Qs는 i번째 subleg에서 space로의 좌표변환
            #List of rotation matrices of each sublegs in space frame
@@ -201,12 +199,12 @@ class robot:
            #List of axes of each sublegs in space frame
            #Type : list of [None,3] Tensor
 
-           Qalpha = [tf.scalar_mul(self.leg[p].sub[i].alpha,e[i]) for i in range(numsubleg)]
+           Qalpha = [tf.scalar_mul(tf.reshape(self.leg[p].sub[i].alpha,[]),e[i]) for i in range(numsubleg)]
            
            Qalphasum = [ Qalpha[0] ]
            for i in range(1,numsubleg): Qalphasum.append( Qalphasum[i-1] + Qalpha[i] )
 
-           Qw = [tf.scalar_mul(self.leg[p].sub[i].omega,e[i]) for i in range(numsubleg)]
+           Qw = [tf.scalar_mul(tf.reshape(self.leg[p].sub[i].omega,[]),e[i]) for i in range(numsubleg)]
 
            ws = [wbs+Qw[0]]
            for i in range(1,numsubleg): 
@@ -324,7 +322,12 @@ R = robot()
 R.set_constants()
 print("set constant")
 
+cost = tf.constant(0.0, dtype = tf.float32)
+
+arrtheta = []
+
 for time in range(timeN):
+    print(time)
     inlay=[]
     for p in range (numLeg):
         for i in range(numsubleg):
@@ -335,24 +338,23 @@ for time in range(timeN):
 
     inlay = tf.reshape(inlay, [1,33])
 
-    L1 = tf.nn.relu(tf.matmul(inlay, W1))
+    L1 = tf.nn.relu(tf.matmul(inlay, W1))+b1
     L2 = tf.nn.tanh(tf.matmul(L1, W2))
-
     for p in range(numLeg):
         for i in range(numsubleg):
             L2, alphatemp = tf.split(L2, [-1, 1], 1)
-            R.leg[p].sub[i].alpha = tf.reshape(alphatemp, [])
+            R.leg[p].sub[i].alpha = alphatemp
 
-            if tf.greater(R.leg[p].sub[i].theta,  theta_ub[i])==truetensor:
-                R.leg[p].sub[i].alpha = -wall
-            
-            elif tf.less( R.leg[p].sub[i].theta , theta_lb[i])==truetensor:
-                R.leg[p].sub[i].alpha = wall
+            thlock_ub = tf.cast(tf.greater(R.leg[p].sub[i].theta, theta_ub[i]),dtype=tf.float32)
+            thlock_lb = tf.cast(tf.less(R.leg[p].sub[i].theta, theta_lb[i]),dtype=tf.float32)
+            #print('thlock_ub = ',wall)
+            R.leg[p].sub[i].alpha += tf.multiply(thlock_ub, - R.leg[p].sub[i].alpha - wall)
+            R.leg[p].sub[i].alpha += tf.multiply(thlock_lb, - R.leg[p].sub[i].alpha + wall) #Restricting theta
 
     R.timeflow()
     cost += tf.reduce_mean(tf.square(R.body.vs-V_goal))
 
-optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
+optimizer = tf.train.AdamOptimizer(learning_rate=10)
 train_op=optimizer.minimize(cost)
 
 init=tf.global_variables_initializer()
@@ -367,3 +369,8 @@ for i in range(100000):
     _, printcost = sess.run([train_op, cost])
     if i%100 == 0:
         print("cost = ", printcost)
+        for p in range(numLeg):
+            for j in range(numsubleg):
+                print("alpha : ",sess.run(R.leg[p].sub[j].alpha),end=' ')
+                print("omega : ",sess.run(R.leg[p].sub[j].omega),end=' ')
+                print("theta : ",sess.run(R.leg[p].sub[j].theta),end='\n')
