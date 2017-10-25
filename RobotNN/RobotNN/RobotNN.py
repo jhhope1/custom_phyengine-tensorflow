@@ -9,7 +9,7 @@ Mtot = 0.9849
 dtime = 0.02
 Fupscale = 1.
 Fdownscale = 0.5
-Fricscale = Mtot*9.81*1.
+Fricscale = Mtot*9.81*5.
 wall = tf.constant([1.])
 g = tf.constant([[0,0,-9.81]],dtype=tf.float32)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float32)
@@ -27,8 +27,8 @@ theta_lb = [tf.constant([-np.pi/8.]), tf.constant([-np.pi/1.5]), tf.constant([-n
 
 #Variables
 global_step = tf.Variable(0,trainable = False, name = 'global_step')
-W1=tf.Variable(tf.random_uniform([27,20], -1, 1,dtype=tf.float32), dtype=tf.float32)
-W2=tf.Variable(tf.random_uniform([20,15], -1, 1,dtype=tf.float32), dtype=tf.float32)
+W1=tf.Variable(tf.random_uniform([27,20], -0.001, 0.001, dtype = tf.float32), dtype=tf.float32)
+W2=tf.Variable(tf.random_uniform([20,15], -0.001, 0.001, dtype = tf.float32), dtype=tf.float32)
 W3=tf.Variable(tf.random_uniform([15,12],-1,1,dtype=tf.float32), dtype = tf.float32)
 b1 = tf.Variable(tf.zeros([20]))
 b2 = tf.Variable(tf.zeros([15]))
@@ -354,7 +354,7 @@ for time in range(timeN):
 
     R.timeflow()
     cost += tf.reduce_mean(tf.square(R.body.vs-V_goal) + tf.square(z_goal - tf.slice(R.body.rs,[0,2],[1,1])))
-optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
+optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
 train_op=optimizer.minimize(cost)
 
 sess = tf.Session()
