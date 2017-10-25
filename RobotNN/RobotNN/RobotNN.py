@@ -19,6 +19,7 @@ Fsubed = tf.constant([[0,0,Mtot*(Fupscale-Fdownscale)*9.81]],dtype=tf.float32)
 Offset = tf.constant([[0,0,0.5]],dtype=tf.float32)
 V_goal = tf.constant([[0.06,0.,0.]], dtype = tf.float32)
 truetensor = tf.constant([True],dtype=tf.bool)
+z_goal = tf.constant([[0.2]])
 
 #Theta lock
 theta_ub = [tf.constant([np.pi/5.]), tf.constant([-np.pi/6.]), tf.constant([np.pi/5.])]
@@ -26,9 +27,11 @@ theta_lb = [tf.constant([-np.pi/8.]), tf.constant([-np.pi/1.5]), tf.constant([-n
 
 #Variables
 global_step = tf.Variable(0,trainable = False, name = 'global_step')
-W1=tf.Variable(tf.random_uniform([33,20], -1, 1,dtype=tf.float32), dtype=tf.float32)
-W2=tf.Variable(tf.random_uniform([20,12], -1, 1,dtype=tf.float32), dtype=tf.float32)
-b1 = tf.Variable(tf.zeros([20]))
+W1=tf.Variable(tf.random_uniform([33,50], -1, 1,dtype=tf.float32), dtype=tf.float32)
+W2=tf.Variable(tf.random_uniform([50,40], -1, 1,dtype=tf.float32), dtype=tf.float32)
+W3=tf.Variable(tf.random_uniform([40,12],-1,1,dtype=tf.float32), dtype = tf.float32)
+b1 = tf.Variable(tf.zeros([50]))
+b2 = tf.Variable(tf.zeros([40]))
 
 class Rigidbody:
     def __init__(self,m=0.0,Q=tf.eye(3,dtype=tf.float32),Ib=tf.zeros((3,3),dtype=tf.float32),wb=tf.zeros((1,3),dtype=tf.float32)):
@@ -323,7 +326,8 @@ cost = tf.constant(0.0, dtype = tf.float32)
 arrtheta = []
 
 for time in range(timeN):
-    print(time)
+    if time%50==0:
+        print(time)
     inlay=[]
     for p in range (numLeg):
         for i in range(numsubleg):
@@ -335,10 +339,11 @@ for time in range(timeN):
     inlay = tf.reshape(inlay, [1,33])
 
     L1 = tf.nn.relu(tf.matmul(inlay, W1))+b1
-    L2 = tf.nn.tanh(tf.matmul(L1, W2))
+    L2 = tf.nn.relu(tf.matmul(L1, W2))+b2
+    L3 = tf.nn.tanh(tf.matmul(L2, W3))
     for p in range(numLeg):
         for i in range(numsubleg):
-            L2, alphatemp = tf.split(L2, [-1, 1], 1)
+            L3, alphatemp = tf.split(L3, [-1, 1], 1)
             R.leg[p].sub[i].alpha = alphatemp
 
             thlock_ub = tf.cast(tf.greater(R.leg[p].sub[i].theta, theta_ub[i]),dtype=tf.float32)
@@ -348,9 +353,8 @@ for time in range(timeN):
             R.leg[p].sub[i].alpha += tf.multiply(thlock_lb, - R.leg[p].sub[i].alpha + wall) #Restricting theta
 
     R.timeflow()
-    cost += tf.reduce_mean(tf.square(R.body.vs-V_goal))
-
-optimizer = tf.train.AdamOptimizer(learning_rate=10)
+    cost += tf.reduce_mean(tf.square(R.body.vs-V_goal) + tf.square(z_goal - tf.slice(R.body.rs,[0,2],[1,1])))
+optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
 train_op=optimizer.minimize(cost)
 
 sess = tf.Session()
