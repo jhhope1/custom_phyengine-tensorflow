@@ -2,11 +2,11 @@ import tensorflow as tf
 import numpy as np
 #from scipy.spatial import Delaunay
 
-timeN = 2000
+timeN = 400
 numsubleg = 3
 numLeg = 4
 Mtot = 0.9849
-dtime = 0.01
+dtime = 0.02
 Fupscale = 1.
 Fdownscale = 0.5
 Fricscale = Mtot*9.81*1.
@@ -19,7 +19,7 @@ Fsubed = tf.constant([[0,0,Mtot*(Fupscale-Fdownscale)*9.81]],dtype=tf.float32)
 Offset = tf.constant([[0,0,0.5]],dtype=tf.float32)
 V_goal = tf.constant([[0.06,0.,0.]], dtype = tf.float32)
 truetensor = tf.constant([True],dtype=tf.bool)
-z_goal = tf.constant([[0.2]])
+z_goal = tf.constant([[0.12]])
 
 #Theta lock
 theta_ub = [tf.constant([np.pi/5.]), tf.constant([-np.pi/6.]), tf.constant([np.pi/5.])]
@@ -27,11 +27,11 @@ theta_lb = [tf.constant([-np.pi/8.]), tf.constant([-np.pi/1.5]), tf.constant([-n
 
 #Variables
 global_step = tf.Variable(0,trainable = False, name = 'global_step')
-W1=tf.Variable(tf.random_uniform([33,50], -1, 1,dtype=tf.float32), dtype=tf.float32)
-W2=tf.Variable(tf.random_uniform([50,40], -1, 1,dtype=tf.float32), dtype=tf.float32)
-W3=tf.Variable(tf.random_uniform([40,12],-1,1,dtype=tf.float32), dtype = tf.float32)
-b1 = tf.Variable(tf.zeros([50]))
-b2 = tf.Variable(tf.zeros([40]))
+W1=tf.Variable(tf.random_uniform([27,20], -1, 1,dtype=tf.float32), dtype=tf.float32)
+W2=tf.Variable(tf.random_uniform([20,15], -1, 1,dtype=tf.float32), dtype=tf.float32)
+W3=tf.Variable(tf.random_uniform([15,12],-1,1,dtype=tf.float32), dtype = tf.float32)
+b1 = tf.Variable(tf.zeros([20]))
+b2 = tf.Variable(tf.zeros([15]))
 
 class Rigidbody:
     def __init__(self,m=0.0,Q=tf.eye(3,dtype=tf.float32),Ib=tf.zeros((3,3),dtype=tf.float32),wb=tf.zeros((1,3),dtype=tf.float32)):
@@ -334,9 +334,9 @@ for time in range(timeN):
             inlay = tf.concat([inlay, tf.reshape( R.leg[p].sub[i].theta, [1])], axis = 0)
             inlay = tf.concat([inlay, tf.reshape( R.leg[p].sub[i].omega, [1])], axis = 0)
 
-    inlay = tf.concat([inlay, tf.tile(tf.reshape(tf.slice(R.body.Q,[2,0],[1,3]), [-1]), [3])], axis = 0)
+    inlay = tf.concat([inlay, tf.reshape(tf.slice(R.body.Q,[2,0],[1,3]), [-1])], axis = 0)
 
-    inlay = tf.reshape(inlay, [1,33])
+    inlay = tf.reshape(inlay, [1,27])
 
     L1 = tf.nn.relu(tf.matmul(inlay, W1))+b1
     L2 = tf.nn.relu(tf.matmul(L1, W2))+b2
@@ -364,10 +364,10 @@ sess=tf.Session()
 sess.run(init)
 '''
 
-nowrs = np.array([[0,0,0.1]])
+nowrs = np.array([[0.,0.,0.1]])
 nowvs = np.zeros((1,3))
 nowwb = np.zeros((1,3))
-nowQb = np.array([[1,0,0],[0,1,0],[0,0,1]])
+nowQb = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 
 ckpt = tf.train.get_checkpoint_state('./model')
 if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
@@ -377,13 +377,12 @@ else:
 
 for i in range(100000):
     _, printcost = sess.run([train_op, cost])
-    if i%100 == 0:
+    if i%10 == 0:
         print("cost = ", printcost)
-        for p in range(numLeg):
-            for j in range(numsubleg):
-                print("alpha : ",sess.run(R.leg[p].sub[j].alpha),end=' ')
-                print("omega : ",sess.run(R.leg[p].sub[j].omega),end=' ')
-                print("theta : ",sess.run(R.leg[p].sub[j].theta),end='\n')
-
+        #for p in range(numLeg):
+            #for j in range(numsubleg):
+                #print("alpha : ",sess.run(R.leg[p].sub[j].alpha),end=' ')
+                #print("omega : ",sess.run(R.leg[p].sub[j].omega),end=' ')
+                #print("theta : ",sess.run(R.leg[p].sub[j].theta),end='\n')
         saver = tf.train.Saver(tf.global_variables())
         saver.save(sess, './model/RobotNN.ckpt',global_step = global_step)
