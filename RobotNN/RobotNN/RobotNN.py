@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 #from scipy.spatial import Delaunay
 
-timeN = 400
+timeN = 400 #4 in local, 400 in quark
 numsubleg = 3
 numLeg = 4
 Mtot = 0.9849
@@ -369,8 +369,10 @@ nowvs = np.zeros((1,3))
 nowwb = np.zeros((1,3))
 nowQb = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 
+saver = tf.train.Saver(tf.global_variables())
 ckpt = tf.train.get_checkpoint_state('./model')
 if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
+    print('YAY')
     saver.restore(sess,ckpt.model_checkpoint_path)
 else:
     sess.run(tf.global_variables_initializer())
@@ -384,5 +386,5 @@ for i in range(100000):
                 #print("alpha : ",sess.run(R.leg[p].sub[j].alpha),end=' ')
                 #print("omega : ",sess.run(R.leg[p].sub[j].omega),end=' ')
                 #print("theta : ",sess.run(R.leg[p].sub[j].theta),end='\n')
-        saver = tf.train.Saver(tf.global_variables())
+        #saver = tf.train.Saver(tf.global_variables())
         saver.save(sess, './model/RobotNN.ckpt',global_step = global_step)
