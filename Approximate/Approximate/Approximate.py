@@ -206,6 +206,8 @@ class robot:
                
                Feqc += Fnormal
                Feqc += Ffric
+
+               Teqc += tf.cross(lbtomots[i] + ls[i][1], Fnormal+Ffric)
                #Teqc+=
 
 
@@ -217,12 +219,12 @@ class robot:
         self.body.vs += tf.scalar_mul(dtime,asb)
         self.body.rs += tf.scalar_mul(dtime,self.body.vs)
         # Q to quaternion
-        
+        '''
         qw = tf.scalar_mul(0.5, tf.sqrt(tf.reduce_sum(tf.diag_part(self.body.Q))+1.))
         qv = tf.reduce_sum(tf.cross(self.body.Q, tf.eye(3, dtype = tf.float32)), axis = 0)/tf.scalar_mul(4., qw)
 
         # quaternion normalization
-        '''
+        
         qvsquare = tf.reduce_sum(tf.square(qv))
         qnorm = tf.sqrt(tf.square(qw)+qvsquare)
         qw /= qnorm
@@ -251,7 +253,7 @@ sess=tf.Session()
 tf.global_variables_initializer()
 nowrs = np.array([[0.,0.,0.15]])
 nowvs = np.array([[0.,0.,0.]])
-nowwb = np.array([[0.0,0.0,0.3]])
+nowwb = np.array([[0.3,0.0,0.3]])
 nowQb = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 
 [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
