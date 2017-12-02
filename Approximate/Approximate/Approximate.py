@@ -175,9 +175,9 @@ class robot:
 
            for i in range(1,numsubleg):
                lbtomots.append(lbtomots[i-1]+ls[i-1][1]+ls[i][0])
-
+               
            #Calculating External Forces
-           vstmp = self.body.vs
+           vstmp = self.body.vs + tf.cross(wbs, lbtomotbs)
            NormalScale = 2000.0
            TanhConst = 100.0
 
