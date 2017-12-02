@@ -178,14 +178,14 @@ class robot:
 
            #Calculating External Forces
            vstmp = self.body.vs
-           NormalScale = 400.0
-           TanhConst = 10.0
+           NormalScale = 2000.0
+           TanhConst = 100.0
 
            Zfilter = tf.constant([[0.,0.,1.]])
            negZfilter = tf.constant([[0.,0.,-1.]])
            XYfilter = tf.constant([[1.,1.,0.]])
            for i in range(numsubleg):
-               Fz_primi = tf.multiply( negZfilter, lbtomots[i] + ls[i][1] )
+               Fz_primi = tf.multiply( negZfilter, self.body.rs + lbtomots[i] + ls[i][1] )
 
                Fz_primi_cube = tf.multiply( Fz_primi, tf.multiply ( Fz_primi, Fz_primi ) )
                
@@ -251,7 +251,7 @@ sess=tf.Session()
 tf.global_variables_initializer()
 nowrs = np.array([[0.,0.,0.15]])
 nowvs = np.array([[0.,0.,0.]])
-nowwb = np.array([[0.5,0.3,0.3]])
+nowwb = np.array([[0.0,0.0,0.3]])
 nowQb = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 
 [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
