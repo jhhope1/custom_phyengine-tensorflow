@@ -3,7 +3,7 @@ import numpy as np
 from time import clock
 #from scipy.spatial import Delaunay
 
-timeN = 7#00  in local, 400 in quark
+timeN = 200#00  in local, 400 in quark
 
 
 numsubleg = 3
