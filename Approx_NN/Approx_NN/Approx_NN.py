@@ -279,9 +279,10 @@ for time in range(timeN):
         L1 = tf.nn.relu(tf.matmul(inlay, W1))+b1
         L2 = tf.nn.relu(tf.matmul(L1, W2))+b2
         L3 = tf.nn.tanh(tf.matmul(L2, W3))
+    L3temp = L3
     for p in range(numLeg):
         for i in range(numsubleg):
-            L3, alphatemp = tf.split(L3, [-1, 1], 1)
+            L3temp, alphatemp = tf.split(L3, [-1, 1], 1)
             
             R.leg[p].sub[i].alpha = tf.reshape( alphatemp, [] )
             
