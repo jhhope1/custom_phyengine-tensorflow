@@ -1,0 +1,2 @@
+model_checkpoint_path: "RobotNN.ckpt-0"
+all_model_checkpoint_paths: "RobotNN.ckpt-0"
