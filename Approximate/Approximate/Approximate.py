@@ -8,7 +8,7 @@ RecordFile = open('record.txt','w')
 numsubleg = 3
 numLeg = 4
 Mtot = 1.379
-dtime = 0.01
+dtime = 0.001
 Fupscale = 1.   
 Fdownscale = 0.3
 Fricscale = Mtot*9.81*0.01
@@ -178,7 +178,7 @@ class robot:
                
            #Calculating External Forces
            vstmp = self.body.vs + tf.cross(wbs, lbtomotbs)
-           NormalScale = 2000.0
+           NormalScale = 300.0
            TanhConst = 100.0
 
            Zfilter = tf.constant([[0.,0.,1.]])
@@ -264,12 +264,14 @@ for i in range(100000):
     [nowrs, nowvs, nowwb, nowQb, asbSess, MWT] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q, asbR, return_val] , feed_dict={ prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
     #print("nowvs(%d) = "%i,nowvs)
     #print("nowQb(%d) = "%i,nowQb);
-    if(i%1==0):
+    if(i%50==0):
         llist1, Flist1, MWT = sess.run( [llist , Flist, return_val] , feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
         print("Flist")
         print(*Flist1,sep='\n',end='\n\n')
         print("llist")
         print(*llist1,sep='\n',end='\n\n')
+        print("now position")
+        print(nowrs,end='\n\n')
         print(np.linalg.det(nowQb))
         #print(Momentum)
         pflat = np.reshape(MWT, [-1])
