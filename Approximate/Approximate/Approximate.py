@@ -8,7 +8,7 @@ RecordFile = open('record.txt','w')
 numsubleg = 3
 numLeg = 4
 Mtot = 1.379
-dtime = 0.01
+dtime = 0.001
 Fupscale = 1.   
 Fdownscale = 0.3
 Fricscale = Mtot*9.81*0.01
@@ -22,7 +22,7 @@ Mtotinv = 1/Mtot
 Ibinv = tf.matrix_inverse(tf.constant([[75.0e-5,0.,0.],
                                [0.,75.0e-5,0.],
                                [0.,0.,50.0e-5]],dtype=tf.float32))# 실제 값으로 바꿔야됨 ########################################################
-        
+
 
 #Variables
 global_step = tf.Variable(0,trainable = False, name = 'global_step')
