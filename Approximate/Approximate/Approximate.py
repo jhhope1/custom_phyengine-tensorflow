@@ -138,7 +138,7 @@ class robot:
 
         #List of External Forces
         Flist = []
-
+        llist = []
         for p in range(numLeg):
            for i in range(numsubleg):
 
@@ -186,8 +186,8 @@ class robot:
            XYfilter = tf.constant([[1.,1.,0.]])
            for i in range(numsubleg):
                Fz_primi = tf.multiply( negZfilter, self.body.rs + lbtomots[i] + ls[i][1] )
-
-               Fz_primi_cube = tf.multiply( Fz_primi, tf.multiply ( Fz_primi, Fz_primi ) )
+               
+               colbool = tf.reshape(tf.matmul( Zfilter , tf.nn.relu( Fz_primi ) , transpose_b = True ), [])
                
                Fz = tf.scalar_mul( NormalScale, tf.nn.relu( Fz_primi ) )
                vstmp += tf.cross( ws[i], ls[i][0] + ls[i][1] )
@@ -200,7 +200,7 @@ class robot:
                Flist.append( Fnormal )
 
                vstmp_xy= tf.multiply( XYfilter, vstmp )
-               Ffric = tf.scalar_mul( -Fricscale, tf.scalar_mul(vstmp_z, vstmp_xy) )
+               Ffric = tf.scalar_mul( -Fricscale, tf.scalar_mul(colbool, vstmp_xy) )
                
                Flist.append( Ffric )
                
@@ -208,6 +208,7 @@ class robot:
                Feqc += Ffric
 
                Teqc += tf.cross(lbtomots[i] + ls[i][1], Fnormal+Ffric)
+               llist.append( tf.norm(lbtomots[i] + ls[i][1]))
                #Teqc+=
 
 
@@ -219,7 +220,7 @@ class robot:
         self.body.vs += tf.scalar_mul(dtime,asb)
         self.body.rs += tf.scalar_mul(dtime,self.body.vs)
         # Q to quaternion
-        '''
+        #'''
         qw = tf.scalar_mul(0.5, tf.sqrt(tf.reduce_sum(tf.diag_part(self.body.Q))+1.))
         qv = tf.reduce_sum(tf.cross(self.body.Q, tf.eye(3, dtype = tf.float32)), axis = 0)/tf.scalar_mul(4., qw)
 
@@ -234,8 +235,8 @@ class robot:
         self.body.Q = tf.scalar_mul(qw*qw-qvsquare,tf.eye(3, dtype = tf.float32))\
             + 2 * tf.matmul(tf.reshape(qv, [3, 1]), tf.reshape(qv, [1, 3]))\
             - 2 * qw * tf.cross(tf.tile(tf.reshape(qv, [1,3]), [3,1]), tf.eye(3, dtype = tf.float32))
-        '''
-        return Flist, asb, Qs, [x + self.body.rs for x in tot_lbtomots]
+        #'''
+        return llist ,Flist, asb, Qs, [x + self.body.rs for x in tot_lbtomots]
 
 R = robot()
 R.set_constants()
@@ -246,7 +247,7 @@ R.body.vs = pvs
 R.body.wb = pwb
 R.body.Q = pQb
 
-Flist, asbR, QsR, return_val = R.timeflow()
+llist, Flist, asbR, QsR, return_val = R.timeflow()
 detQ = tf.cast(tf.matrix_determinant(R.body.Q), tf.float32)
 #R.body.Q = tf.scalar_mul(1/tf.pow(detQ, 1/3.),R.body.Q)
 sess=tf.Session()
@@ -264,8 +265,12 @@ for i in range(100000):
     #print("nowvs(%d) = "%i,nowvs)
     #print("nowQb(%d) = "%i,nowQb);
     if(i%1==0):
-        Flist1, MWT = sess.run( [Flist,return_val] , feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+        llist1, Flist1, MWT = sess.run( [llist , Flist, return_val] , feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+        print("Flist")
         print(*Flist1,sep='\n',end='\n\n')
+        print("llist")
+        print(*llist1,sep='\n',end='\n\n')
+        print(np.linalg.det(nowQb))
         #print(Momentum)
         pflat = np.reshape(MWT, [-1])
         ax = fig.add_subplot(111,projection='3d')
