@@ -3,16 +3,16 @@ import numpy as np
 from time import clock
 #from scipy.spatial import Delaunay
 
-timeN = 200#00  in local, 400 in quark
+timeN = 100#00  in local, 400 in quark
 
 
 numsubleg = 3
 numLeg = 4
 Mtot = 1.379
-dtime = 0.01
+dtime = 0.001
 Fupscale = 1.   
 Fdownscale = 0.3
-Fricscale = Mtot*9.81*0.01
+Fricscale = Mtot*9.81*1.
 g = tf.constant([[0.,0.,-9.81]],dtype=tf.float32)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float32)
 Fdown = tf.constant([[0,0,Mtot*Fdownscale*9.81]],dtype=tf.float32)
@@ -85,20 +85,20 @@ class robot:
     def set_constants(self):
         #Set Axes
         self.leg[0].sub[0].axis = tf.constant([[0.,1.,0.]],dtype=tf.float32)
-        self.leg[0].sub[1].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
-        self.leg[0].sub[2].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
+        self.leg[0].sub[1].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
+        self.leg[0].sub[2].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
 
         self.leg[1].sub[0].axis = tf.constant([[0.,-1.,0.]],dtype=tf.float32)
-        self.leg[1].sub[1].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
-        self.leg[1].sub[2].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
+        self.leg[1].sub[1].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
+        self.leg[1].sub[2].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
 
         self.leg[2].sub[0].axis = tf.constant([[0.,1.,0.]],dtype=tf.float32)
-        self.leg[2].sub[1].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
-        self.leg[2].sub[2].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
+        self.leg[2].sub[1].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
+        self.leg[2].sub[2].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
 
         self.leg[3].sub[0].axis = tf.constant([[0.,-1.,0.]],dtype=tf.float32)
-        self.leg[3].sub[1].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
-        self.leg[3].sub[2].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
+        self.leg[3].sub[1].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
+        self.leg[3].sub[2].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
 
         #Set lvectors
         self.body.lbtomot[0] = tf.constant([[0.065,0.065,0.02]],dtype=tf.float32)#############################3여기는 근사를 하면서 내려간 무게중심을 보정해주어야함
@@ -150,8 +150,8 @@ class robot:
         Teqc = tf.zeros([1,3], dtype = tf.float32)
 
         #List of External Forces
-        Flist = []
-        llist = []
+        #Flist = []
+        #llist = []
         for p in range(numLeg):
            for i in range(numsubleg):
                #print('alpha = ',self.leg[p].sub[i].alpha);
@@ -191,7 +191,7 @@ class robot:
                
            #Calculating External Forces
            vstmp = self.body.vs + tf.cross(wbs, lbtomotbs)
-           NormalScale = 2000.0
+           NormalScale = 300.0
            TanhConst = 100.0
 
            Zfilter = tf.constant([[0.,0.,1.]])
@@ -210,22 +210,22 @@ class robot:
 
                Fnormal = tf.scalar_mul( Vscale, Fz )
 
-               Flist.append( Fnormal )
+               #Flist.append( Fnormal )
 
                vstmp_xy= tf.multiply( XYfilter, vstmp )
                Ffric = tf.scalar_mul( -Fricscale, tf.scalar_mul(colbool, vstmp_xy) )
                
-               Flist.append( Ffric )
+               #Flist.append( Ffric )
                
                Feqc += Fnormal
                Feqc += Ffric
 
                Teqc += tf.cross(lbtomots[i] + ls[i][1], Fnormal+Ffric)
-               llist.append( tf.norm(lbtomots[i] + ls[i][1]))
+               #llist.append( tf.norm(lbtomots[i] + ls[i][1]))
                #Teqc+=
 
 
-           tot_lbtomots += lbtomots
+           #tot_lbtomots += lbtomots
         asb = tf.scalar_mul(Mtotinv, Feqc)
         alphab = tf.matmul(tf.matmul(Teqc, self.body.Q, transpose_b = True), Ibinv)
         self.body.wb += tf.scalar_mul(dtime, alphab)
@@ -233,7 +233,7 @@ class robot:
         self.body.vs += tf.scalar_mul(dtime,asb)
         self.body.rs += tf.scalar_mul(dtime,self.body.vs)
         # Q to quaternion
-        #'''
+        '''
         qw = tf.scalar_mul(0.5, tf.sqrt(tf.reduce_sum(tf.diag_part(self.body.Q))+1.))
         qv = tf.reduce_sum(tf.cross(self.body.Q, tf.eye(3, dtype = tf.float32)), axis = 0)/tf.scalar_mul(4., qw)
 
@@ -248,7 +248,7 @@ class robot:
         self.body.Q = tf.scalar_mul(qw*qw-qvsquare,tf.eye(3, dtype = tf.float32))\
             + 2 * tf.matmul(tf.reshape(qv, [3, 1]), tf.reshape(qv, [1, 3]))\
             - 2 * qw * tf.cross(tf.tile(tf.reshape(qv, [1,3]), [3,1]), tf.eye(3, dtype = tf.float32))
-        #'''
+        '''
 
 
 
@@ -263,6 +263,8 @@ arrtheta = []
 for time in range(timeN):
     if time%50==1:
         print(time)
+    if time%10 != 0 :
+        continue
     inlay=[]
     for p in range (numLeg):
         for i in range(numsubleg):
@@ -276,9 +278,10 @@ for time in range(timeN):
     L1 = tf.nn.relu(tf.matmul(inlay, W1))+b1
     L2 = tf.nn.relu(tf.matmul(L1, W2))+b2
     L3 = tf.nn.tanh(tf.matmul(L2, W3))
+    L3temp = L3
     for p in range(numLeg):
         for i in range(numsubleg):
-            L3, alphatemp = tf.split(L3, [-1, 1], 1)
+            L3temp, alphatemp = tf.split(L3, [-1, 1], 1)
             
             R.leg[p].sub[i].alpha = tf.reshape( alphatemp, [] )
             

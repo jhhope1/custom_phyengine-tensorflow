@@ -8,17 +8,17 @@ RecordFile = open('record.txt','w')
 numsubleg = 3
 numLeg = 4
 Mtot = 1.379
-dtime = 0.001
+dtime = 0.002
 Fupscale = 1.   
 Fdownscale = 0.3
-Fricscale = Mtot*9.81*0.01
+Fricscale = Mtot*9.81*1.
 g = tf.constant([[0.,0.,-9.81]],dtype=tf.float32)
 Fup = tf.constant([[0,0,Mtot*Fupscale*9.81]],dtype=tf.float32)
 Fdown = tf.constant([[0,0,Mtot*Fdownscale*9.81]],dtype=tf.float32)
 Fadded = tf.constant([[0,0,Mtot*(Fupscale+Fdownscale)*9.81/2.]],dtype=tf.float32)
 Fsubed = tf.constant([[0,0,Mtot*(Fupscale-Fdownscale)*9.81]],dtype=tf.float32)  
 Offset = tf.constant([[0,0,0.5]],dtype=tf.float32)
-Mtotinv = 1/Mtot
+Mtotinv = 1./Mtot
 Ibinv = tf.matrix_inverse(tf.constant([[75.0e-5,0.,0.],
                                [0.,75.0e-5,0.],
                                [0.,0.,50.0e-5]],dtype=tf.float32))# 실제 값으로 바꿔야됨 ########################################################
@@ -34,13 +34,17 @@ pvs = tf.placeholder(tf.float32, [1,3])
 pwb = tf.placeholder(tf.float32, [1,3])
 pQb = tf.placeholder(tf.float32, [3,3])
 
+def boolean_with_sigmoid(x):
+    return tf.nn.sigmoid( 1000. * x );
+
 class Rigidbody:
     def __init__(self,Q=tf.eye(3,dtype=tf.float32),wb=tf.zeros((1,3),dtype=tf.float32)):
         self.Q = Q
         self.wb = wb
 
 class Robotbody(Rigidbody):
-    def __init__(self, rs=tf.zeros((1,3), dtype=tf.float32), vs=tf.zeros((1,3), dtype=tf.float32), lbtomot = [tf.zeros((1,3),dtype=tf.float32) for _ in range(numLeg)]):
+    def __init__(self,Q=tf.eye(3,dtype=tf.float32),wb=tf.zeros((1,3),dtype=tf.float32), rs=tf.zeros((1,3), dtype=tf.float32), vs=tf.zeros((1,3), dtype=tf.float32), lbtomot = [tf.zeros((1,3),dtype=tf.float32) for _ in range(numLeg)]):
+        Rigidbody.__init__(self,Q,wb)
         self.lbtomot=[tf.zeros((1,3),dtype=tf.float32) for _ in range(numLeg)]
         self.lbtomot[0] = lbtomot[0]
         self.lbtomot[1] = lbtomot[1]
@@ -51,7 +55,8 @@ class Robotbody(Rigidbody):
         self.lbtomot = lbtomot
 
 class subleg(Rigidbody):
-    def __init__(self,axis=tf.zeros((1,3),dtype=tf.float32),l = [tf.zeros((1,3),dtype=tf.float32) for _ in range(2)],theta=0.0,omega=0.0,alpha=0.0):
+    def __init__(self,Q=tf.eye(3,dtype=tf.float32),wb=tf.zeros((1,3),dtype=tf.float32),axis=tf.zeros((1,3),dtype=tf.float32),l = [tf.zeros((1,3),dtype=tf.float32) for _ in range(2)],theta=0.0,omega=0.0,alpha=0.0):
+        Rigidbody.__init__(self,Q,wb)
         self.axis = axis
         self.l=[tf.zeros((1,3),dtype=tf.float32) for _ in range(2)]
         self.l[0] = l[0]
@@ -72,20 +77,20 @@ class robot:
     def set_constants(self):
         #Set Axes
         self.leg[0].sub[0].axis = tf.constant([[0.,1.,0.]],dtype=tf.float32)
-        self.leg[0].sub[1].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
-        self.leg[0].sub[2].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
+        self.leg[0].sub[1].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
+        self.leg[0].sub[2].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
 
         self.leg[1].sub[0].axis = tf.constant([[0.,-1.,0.]],dtype=tf.float32)
-        self.leg[1].sub[1].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
-        self.leg[1].sub[2].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
+        self.leg[1].sub[1].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
+        self.leg[1].sub[2].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
 
         self.leg[2].sub[0].axis = tf.constant([[0.,1.,0.]],dtype=tf.float32)
-        self.leg[2].sub[1].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
-        self.leg[2].sub[2].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
+        self.leg[2].sub[1].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
+        self.leg[2].sub[2].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
 
         self.leg[3].sub[0].axis = tf.constant([[0.,-1.,0.]],dtype=tf.float32)
-        self.leg[3].sub[1].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
-        self.leg[3].sub[2].axis = tf.constant([[-1.,0.,0.]],dtype=tf.float32)
+        self.leg[3].sub[1].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
+        self.leg[3].sub[2].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
 
         #Set lvectors
         self.body.lbtomot[0] = tf.constant([[0.065,0.065,0.02]],dtype=tf.float32)#############################3여기는 근사를 하면서 내려간 무게중심을 보정해주어야함
@@ -141,11 +146,11 @@ class robot:
         llist = []
         for p in range(numLeg):
            for i in range(numsubleg):
-
+               #print('alpha = ',self.leg[p].sub[i].alpha);
                self.leg[p].sub[i].omega += self.leg[p].sub[i].alpha * dtime #omega를 시간에 따라 갱신
-
+               #print('omega = ',self.leg[p].sub[i].omega);
                self.leg[p].sub[i].theta += self.leg[p].sub[i].omega * dtime #theta를 시간에 따라 갱신
-
+               #print('theta = ',self.leg[p].sub[i].theta);                                          
                self.leg[p].sub[i].Q = tf.scalar_mul(tf.cos(self.leg[p].sub[i].theta), tf.eye(3, dtype=tf.float32)) + \
                tf.scalar_mul(1.-tf.cos(self.leg[p].sub[i].theta), tf.matmul(self.leg[p].sub[i].axis, self.leg[p].sub[i].axis, transpose_a = True)) + \
                tf.scalar_mul(tf.sin(self.leg[p].sub[i].theta), tf.cross(tf.tile(self.leg[p].sub[i].axis,[3,1]), tf.eye(3, dtype=tf.float32)))
@@ -178,7 +183,7 @@ class robot:
                
            #Calculating External Forces
            vstmp = self.body.vs + tf.cross(wbs, lbtomotbs)
-           NormalScale = 2000.0
+           NormalScale = 300.0
            TanhConst = 100.0
 
            Zfilter = tf.constant([[0.,0.,1.]])
@@ -220,7 +225,7 @@ class robot:
         self.body.vs += tf.scalar_mul(dtime,asb)
         self.body.rs += tf.scalar_mul(dtime,self.body.vs)
         # Q to quaternion
-        #'''
+        '''
         qw = tf.scalar_mul(0.5, tf.sqrt(tf.reduce_sum(tf.diag_part(self.body.Q))+1.))
         qv = tf.reduce_sum(tf.cross(self.body.Q, tf.eye(3, dtype = tf.float32)), axis = 0)/tf.scalar_mul(4., qw)
 
@@ -235,8 +240,8 @@ class robot:
         self.body.Q = tf.scalar_mul(qw*qw-qvsquare,tf.eye(3, dtype = tf.float32))\
             + 2 * tf.matmul(tf.reshape(qv, [3, 1]), tf.reshape(qv, [1, 3]))\
             - 2 * qw * tf.cross(tf.tile(tf.reshape(qv, [1,3]), [3,1]), tf.eye(3, dtype = tf.float32))
-        #'''
-        return llist ,Flist, asb, Qs, [x + self.body.rs for x in tot_lbtomots]
+        '''
+        return llist ,Flist, asb, Qs, [self.body.rs]+[x + self.body.rs for x in tot_lbtomots]#, qnorm, qw
 
 R = robot()
 R.set_constants()
@@ -247,14 +252,14 @@ R.body.vs = pvs
 R.body.wb = pwb
 R.body.Q = pQb
 
-llist, Flist, asbR, QsR, return_val = R.timeflow()
+llist, Flist, asbR, QsR, return_val = R.timeflow()#, qnorm, qw = R.timeflow()
 detQ = tf.cast(tf.matrix_determinant(R.body.Q), tf.float32)
 #R.body.Q = tf.scalar_mul(1/tf.pow(detQ, 1/3.),R.body.Q)
 sess=tf.Session()
 tf.global_variables_initializer()
 nowrs = np.array([[0.,0.,0.15]])
 nowvs = np.array([[0.,0.,0.]])
-nowwb = np.array([[0.3,0.0,0.3]])
+nowwb = np.array([[0.5,-0.5,0.3]])
 nowQb = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
 
 [nowrs, nowvs, nowwb, nowQb] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q] ,feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
@@ -264,12 +269,21 @@ for i in range(100000):
     [nowrs, nowvs, nowwb, nowQb, asbSess, MWT] = sess.run([R.body.rs,R.body.vs,R.body.wb ,R.body.Q, asbR, return_val] , feed_dict={ prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
     #print("nowvs(%d) = "%i,nowvs)
     #print("nowQb(%d) = "%i,nowQb);
-    if(i%1==0):
-        llist1, Flist1, MWT = sess.run( [llist , Flist, return_val] , feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
+    if(i%100==0):
+        llist1, Flist1, MWT = sess.run([llist, Flist, return_val] , feed_dict={prs:nowrs,pvs:nowvs,pwb:nowwb,pQb:nowQb})
+        #llist1, Flist1, MWT, quatnorm, qw1 = sess.run( [llist , Flist, return_val, qnorm, qw] , feed_dict={prs: nowrs, pvs:nowvs, pwb: nowwb, pQb: nowQb})
         print("Flist")
         print(*Flist1,sep='\n',end='\n\n')
-        print("llist")
-        print(*llist1,sep='\n',end='\n\n')
+        #print("llist")
+        #print(*llist1,sep='\n',end='\n\n')
+        print("now position")
+        print(nowrs,end='\n\n')
+        '''
+        print("quaternion norm")
+        print(quatnorm,end='\n\n')
+        print("qw")
+        print(qw1,end='\n\n')
+        '''
         print(np.linalg.det(nowQb))
         #print(Momentum)
         pflat = np.reshape(MWT, [-1])
