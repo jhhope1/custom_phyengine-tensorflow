@@ -5,7 +5,6 @@ from time import clock
 
 timeN = 100#00  in local, 400 in quark
 
-
 numsubleg = 3
 numLeg = 4
 Mtot = 1.379
@@ -101,7 +100,7 @@ class robot:
         self.leg[3].sub[2].axis = tf.constant([[1.,0.,0.]],dtype=tf.float32)
 
         #Set lvectors
-        self.body.lbtomot[0] = tf.constant([[0.065,0.065,0.02]],dtype=tf.float32)#############################3여기는 근사를 하면서 내려간 무게중심을 보정해주어야함
+        self.body.lbtomot[0] = tf.constant([[0.065,0.065,0.02]],dtype=tf.float32)########3여기는 근사를 하면서 내려간 무게중심을 보정해주어야함
         self.body.lbtomot[1] = tf.constant([[-0.065,0.065,0.02]],dtype=tf.float32)
         self.body.lbtomot[2] = tf.constant([[0.065,-0.065,0.02]],dtype=tf.float32)
         self.body.lbtomot[3] = tf.constant([[-0.065,-0.065,0.02]],dtype=tf.float32)
@@ -260,9 +259,12 @@ cost = tf.constant(0.0, dtype = tf.float32)
 
 arrtheta = []
 
+L3 = tf.zeros([12])
+
 for time in range(timeN):
     if time%50==1:
         print(time)
+<<<<<<< HEAD
     if time%10 != 0 :
         continue
     inlay=[]
@@ -270,14 +272,29 @@ for time in range(timeN):
         for i in range(numsubleg):
             inlay = tf.concat([inlay, tf.reshape( R.leg[p].sub[i].theta, [1])], axis = 0)
             inlay = tf.concat([inlay, tf.reshape( R.leg[p].sub[i].omega, [1])], axis = 0)
+=======
+>>>>>>> 95e261fa1a4c80277995de95a46d68f40878b28c
 
-    inlay = tf.concat([inlay, tf.reshape(tf.slice(R.body.Q ,[2,0],[1,3]), [-1])], axis = 0)
+    if(time%10 == 0):
+        inlay=[]
+        for p in range (numLeg):
+            for i in range(numsubleg):
+                inlay = tf.concat([inlay, tf.reshape( R.leg[p].sub[i].theta, [1])], axis = 0)
+                inlay = tf.concat([inlay, tf.reshape( R.leg[p].sub[i].omega, [1])], axis = 0)
 
-    inlay = tf.reshape(inlay, [1,27])
+        inlay = tf.concat([inlay, tf.reshape(tf.slice(R.body.Q ,[2,0],[1,3]), [-1])], axis = 0)
 
+        inlay = tf.reshape(inlay, [1,27])
+
+<<<<<<< HEAD
     L1 = tf.nn.relu(tf.matmul(inlay, W1))+b1
     L2 = tf.nn.relu(tf.matmul(L1, W2))+b2
     L3 = tf.nn.tanh(tf.matmul(L2, W3))
+=======
+        L1 = tf.nn.relu(tf.matmul(inlay, W1))+b1
+        L2 = tf.nn.relu(tf.matmul(L1, W2))+b2
+        L3 = tf.nn.tanh(tf.matmul(L2, W3))
+>>>>>>> 95e261fa1a4c80277995de95a46d68f40878b28c
     L3temp = L3
     for p in range(numLeg):
         for i in range(numsubleg):
