@@ -25,7 +25,7 @@ class A2CAgent:
         # DQN hyperparameter 여기서 epsilon은 state의 stdeva의 크기로 사용될 것.
         self.epsilon = 1.0
         self.epsilon_decay = 0.999
-        self.epsilon_min = 0.
+        self.epsilon_min = 0.000001
 
         # 액터-크리틱 하이퍼파라미터
         self.discount_factor = 0.99
@@ -33,7 +33,7 @@ class A2CAgent:
         # critic를 Q함수로 한다. 가즈아.
         self.critic_lr = 0.005
 
-        self.batch_size = 64
+        self.batch_size = 100
         self.train_start = 1000  ########앙 기모딱
 
         # 리플레이 메모리, 최대 크기 2000
@@ -58,9 +58,9 @@ class A2CAgent:
     # critic: 상태와 행동을 받아서 Q함수를 계산
     def build_critic(self):
         critic = Sequential()
-        critic.add(Dense(40, input_dim=self.state_size + self.action_size, activation='relu',
+        critic.add(Dense(100, input_dim=self.state_size + self.action_size, activation='relu',
                          kernel_initializer='he_uniform'))
-        critic.add(Dense(40, activation='relu',
+        critic.add(Dense(100, activation='relu',
                          kernel_initializer='he_uniform'))
         critic.add(Dense(1, activation='linear',
                          kernel_initializer='he_uniform'))
@@ -71,9 +71,9 @@ class A2CAgent:
     # actor: 상태를 받아 각 행동의 확률을 계산
     def build_actor(self):
         actor = Sequential()
-        actor.add(Dense(40, input_dim=self.state_size, activation='relu',
+        actor.add(Dense(50, input_dim=self.state_size, activation='relu',
                         kernel_initializer='he_uniform'))
-        actor.add(Dense(40, input_dim=self.state_size, activation='relu',
+        actor.add(Dense(50, input_dim=self.state_size, activation='relu',
                         kernel_initializer='he_uniform'))
         actor.add(Dense(self.action_size, activation='tanh',
                         kernel_initializer='he_uniform'))
