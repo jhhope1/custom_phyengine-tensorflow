@@ -1,0 +1,167 @@
+_________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_1 (Dense)              (None, 24)                120       
+_________________________________________________________________
+dense_2 (Dense)              (None, 2)                 50        
+=================================================================
+Total params: 170
+Trainable params: 170
+Non-trainable params: 0
+_________________________________________________________________
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_3 (Dense)              (None, 24)                168       
+_________________________________________________________________
+dense_4 (Dense)              (None, 24)                600       
+_________________________________________________________________
+dense_5 (Dense)              (None, 1)                 25        
+=================================================================
+Total params: 793
+Trainable params: 793
+Non-trainable params: 0
+_________________________________________________________________
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_6 (Dense)              (None, 24)                168       
+_________________________________________________________________
+dense_7 (Dense)              (None, 24)                600       
+_________________________________________________________________
+dense_8 (Dense)              (None, 1)                 25        
+=================================================================
+Total params: 793
+Trainable params: 793
+Non-trainable params: 0
+_________________________________________________________________
+2018-04-27 03:35:45.857435: I C:\tf_jenkins\workspace\rel-win\M\windows\PY\35\tensorflow\core\platform\cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX
+episode: 0   score: 29.0
+episode: 1   score: 13.0
+episode: 2   score: 11.0
+episode: 3   score: 21.0
+episode: 4   score: 14.0
+episode: 5   score: 20.0
+episode: 6   score: 20.0
+episode: 7   score: 9.0
+episode: 8   score: 10.0
+episode: 9   score: 20.0
+episode: 10   score: 11.0
+episode: 11   score: 43.0
+episode: 12   score: 15.0
+episode: 13   score: 15.0
+episode: 14   score: 25.0
+episode: 15   score: 25.0
+episode: 16   score: 41.0
+episode: 17   score: 27.0
+episode: 18   score: 10.0
+episode: 19   score: 11.0
+episode: 20   score: 13.0
+episode: 21   score: 11.0
+episode: 22   score: 15.0
+episode: 23   score: 15.0
+episode: 24   score: 26.0
+episode: 25   score: 16.0
+episode: 26   score: 26.0
+episode: 27   score: 24.0
+episode: 28   score: 11.0
+episode: 29   score: 20.0
+episode: 30   score: 14.0
+episode: 31   score: 24.0
+episode: 32   score: 13.0
+episode: 33   score: 26.0
+episode: 34   score: 30.0
+episode: 35   score: 18.0
+episode: 36   score: 20.0
+episode: 37   score: 13.0
+episode: 38   score: 22.0
+episode: 39   score: 15.0
+episode: 40   score: 14.0
+episode: 41   score: 43.0
+episode: 42   score: 11.0
+episode: 43   score: 44.0
+episode: 44   score: 10.0
+episode: 45   score: 17.0
+episode: 46   score: 31.0
+episode: 47   score: 9.0
+episode: 48   score: 12.0	## 아마 여기서 학습 시작?
+episode: 49   score: 20.0
+episode: 50   score: 36.0
+episode: 51   score: 19.0
+episode: 52   score: 23.0
+episode: 53   score: 45.0
+episode: 54   score: 33.0
+episode: 55   score: 64.0
+episode: 56   score: 70.0
+episode: 57   score: 16.0
+episode: 58   score: 23.0
+episode: 59   score: 80.0
+episode: 60   score: 32.0
+episode: 61   score: 20.0
+episode: 62   score: 36.0
+episode: 63   score: 55.0
+episode: 64   score: 10.0
+episode: 65   score: 61.0
+episode: 66   score: 55.0
+episode: 67   score: 111.0
+episode: 68   score: 106.0
+episode: 69   score: 211.0
+episode: 70   score: 118.0
+episode: 71   score: 136.0
+episode: 72   score: 112.0
+episode: 73   score: 144.0
+episode: 74   score: 221.0
+episode: 75   score: 122.0
+episode: 76   score: 365.0
+episode: 77   score: 153.0
+episode: 78   score: 166.0
+episode: 79   score: 242.0
+C:\Users\김재환\AppData\Local\Programs\Python\Python35\lib\site-packages\keras\callbacks.py:120: UserWarning: Method on_batch_end() is slow compared to the batch update (0.104004). Check your callbacks.
+  % delta_t_median)
+episode: 80   score: 211.0
+episode: 81   score: 219.0
+episode: 82   score: 231.0
+episode: 83   score: 232.0
+episode: 84   score: 255.0
+episode: 85   score: 297.0
+episode: 86   score: 263.0
+episode: 87   score: 376.0
+episode: 88   score: 500.0
+episode: 89   score: 305.0
+episode: 90   score: 149.0
+episode: 91   score: 182.0
+episode: 92   score: 220.0
+episode: 93   score: 172.0
+episode: 94   score: 213.0
+episode: 95   score: 337.0
+episode: 96   score: 154.0
+episode: 97   score: 315.0
+episode: 98   score: 474.0
+episode: 99   score: 153.0
+episode: 100   score: 158.0
+episode: 101   score: 140.0
+episode: 102   score: 159.0
+episode: 103   score: 145.0
+episode: 104   score: 149.0
+episode: 105   score: 119.0
+episode: 106   score: 158.0
+episode: 107   score: 197.0
+episode: 108   score: 223.0
+episode: 109   score: 209.0
+episode: 110   score: 432.0
+episode: 111   score: 247.0
+episode: 112   score: 500.0
+episode: 113   score: 188.0
+episode: 114   score: 500.0
+episode: 115   score: 500.0
+episode: 116   score: 500.0
+episode: 117   score: 500.0
+episode: 118   score: 500.0
+episode: 119   score: 500.0
+episode: 120   score: 500.0
+episode: 121   score: 500.0
+episode: 122   score: 500.0
+episode: 123   score: 229.0
+episode: 124   score: 301.0
+episode: 125   score: 283.0
+
