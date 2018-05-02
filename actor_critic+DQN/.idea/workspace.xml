@@ -14,8 +14,8 @@
       <file leaf-file-name="actor-critic-continuous.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/actor-critic-continuous.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="213">
-              <caret line="35" column="29" lean-forward="true" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
+            <state relative-caret-position="456">
+              <caret line="35" column="29" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -23,11 +23,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="environment.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="environment.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/environment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="361">
-              <caret line="21" column="18" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="18" />
+            <state relative-caret-position="185">
+              <caret line="49" column="68" selection-start-line="49" selection-start-column="61" selection-end-line="49" selection-end-column="68" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -35,11 +35,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_engine.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="test_engine.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test_engine.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="19">
-              <caret line="35" column="24" selection-start-line="35" selection-start-column="24" selection-end-line="35" selection-end-column="24" />
+            <state relative-caret-position="171">
+              <caret line="17" column="37" lean-forward="true" selection-start-line="17" selection-start-column="37" selection-end-line="17" selection-end-column="37" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -85,7 +85,7 @@
       <find>Q2rot</find>
       <find>Force</find>
       <find>trace</find>
-      <find>Q +=</find>
+      <find />
       <find>Q</find>
       <find>body.Q</find>
       <find>lb</find>
@@ -103,7 +103,6 @@
       <find>force</find>
       <find>dtime</find>
       <find>score</find>
-      <find>reward</find>
       <find>check</find>
       <find>rew</find>
       <find>done</find>
@@ -112,6 +111,7 @@
       <find>predi</find>
       <find>state</find>
       <find>print</find>
+      <find>reward</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -128,17 +128,17 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-12" />
-    <option name="y" value="-12" />
-    <option name="width" value="1890" />
-    <option name="height" value="930" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="949" />
+    <option name="width" value="980" />
+    <option name="height" value="1031" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -150,7 +150,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -292,13 +291,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17174083" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.2818111" side_tool="true" visible="true" weight="0.35223368" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.28259173" side_tool="true" visible="true" weight="0.35223368" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.49414518" weight="0.3298969" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.71818894" weight="0.35223368" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7174083" visible="true" weight="0.35223368" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -697,16 +697,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/environment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="361">
-          <caret line="21" column="18" selection-start-line="21" selection-start-column="13" selection-end-line="21" selection-end-column="18" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fit_initial_weight.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
@@ -719,8 +709,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/actor-critic-continuous.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="213">
-          <caret line="35" column="29" lean-forward="true" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
+        <state relative-caret-position="456">
+          <caret line="35" column="29" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
@@ -729,8 +719,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/test_engine.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="19">
-          <caret line="35" column="24" selection-start-line="35" selection-start-column="24" selection-end-line="35" selection-end-column="24" />
+        <state relative-caret-position="171">
+          <caret line="17" column="37" lean-forward="true" selection-start-line="17" selection-start-column="37" selection-end-line="17" selection-end-column="37" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/environment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="185">
+          <caret line="49" column="68" selection-start-line="49" selection-start-column="61" selection-end-line="49" selection-end-column="68" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
