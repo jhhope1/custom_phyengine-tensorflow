@@ -37,7 +37,8 @@ class Env(tk.Tk):
     def reset(self):
         self.R = Rengine.robot()
         self.R.set_constants()
-        return self.get_state()
+        self.get_state()
+        return self.state
 
     def get_reward(self):
         self.reward = -np.mean(np.square(self.R.body.vs.flatten()-vs_goal))

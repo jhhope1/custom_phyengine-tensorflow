@@ -14,20 +14,38 @@
       <file leaf-file-name="actor-critic-continuous.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/actor-critic-continuous.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="456">
-              <caret line="35" column="29" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
+            <state relative-caret-position="85">
+              <caret line="104" column="26" lean-forward="true" selection-start-line="104" selection-start-column="26" selection-end-line="106" selection-end-column="46" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="continuous_A3C.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/continuous_A3C.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-5738">
+              <caret line="56" column="57" lean-forward="true" selection-start-line="56" selection-start-column="57" selection-end-line="56" selection-end-column="57" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="breakout_a3c.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../reinforcement-learning-kr/3-atari/1-breakout/breakout_a3c.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-19">
+              <caret line="305" column="19" selection-start-line="305" selection-start-column="19" selection-end-line="305" selection-end-column="19" />
               <folding>
-                <element signature="e#0#10#0" expanded="true" />
+                <element signature="e#0#34#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="environment.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="environment.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/environment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="185">
-              <caret line="49" column="68" selection-start-line="49" selection-start-column="61" selection-end-line="49" selection-end-column="68" />
+            <state relative-caret-position="123">
+              <caret line="40" column="25" selection-start-line="40" selection-start-column="25" selection-end-line="40" selection-end-column="25" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -38,8 +56,8 @@
       <file leaf-file-name="test_engine.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test_engine.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="171">
-              <caret line="17" column="37" lean-forward="true" selection-start-line="17" selection-start-column="37" selection-end-line="17" selection-end-column="37" />
+            <state relative-caret-position="247">
+              <caret line="17" column="37" selection-start-line="17" selection-start-column="37" selection-end-line="17" selection-end-column="37" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -82,36 +100,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Q2rot</find>
-      <find>Force</find>
-      <find>trace</find>
-      <find />
-      <find>Q</find>
-      <find>body.Q</find>
-      <find>lb</find>
-      <find>resis</find>
-      <find>vs</find>
-      <find>alpha</find>
-      <find>wb</find>
-      <find>sqrt</find>
-      <find>g</find>
-      <find>phy_</find>
-      <find>phy_constant</find>
-      <find>num</find>
-      <find>phy</find>
-      <find>rotate</find>
-      <find>force</find>
-      <find>dtime</find>
-      <find>score</find>
-      <find>check</find>
-      <find>rew</find>
-      <find>done</find>
-      <find>cartpole</find>
-      <find>critic</find>
-      <find>predi</find>
-      <find>state</find>
+      <find>critic.output</find>
+      <find>make_pre</find>
+      <find>get_actio</find>
+      <find>'''</find>
+      <find>optimizer</find>
+      <find>ops</find>
+      <find>summary_ops</find>
+      <find>get_state</find>
+      <find>dense_4</find>
+      <find>dense_41</find>
       <find>print</find>
-      <find>reward</find>
+      <find>get_ac</find>
+      <find>get_action</find>
+      <find>-1</find>
+      <find>lo</find>
+      <find>predict</find>
+      <find>global</find>
+      <find>epsil</find>
+      <find>self.avg_p_max</find>
+      <find>train_mo</find>
+      <find>actor.pre</find>
+      <find>actor.predic</find>
+      <find>self.action</find>
+      <find>batch_</find>
+      <find>batch_size</find>
+      <find>epsilon</find>
+      <find>train_model</find>
+      <find>grap</find>
+      <find>local_</find>
+      <find>graph</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -122,23 +140,24 @@
         <option value="$PROJECT_DIR$/Robotengine.py" />
         <option value="$PROJECT_DIR$/plotter.py" />
         <option value="$PROJECT_DIR$/fit_initial_weight.py" />
-        <option value="$PROJECT_DIR$/environment.py" />
         <option value="$PROJECT_DIR$/test_engine.py" />
+        <option value="$PROJECT_DIR$/../../reinforcement-learning-kr/3-atari/1-breakout/breakout_a3c.py" />
+        <option value="$PROJECT_DIR$/environment.py" />
         <option value="$PROJECT_DIR$/actor-critic-continuous.py" />
+        <option value="$PROJECT_DIR$/continuous_A3C.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="949" />
-    <option name="width" value="980" />
-    <option name="height" value="1031" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-12" />
+    <option name="width" value="981" />
+    <option name="height" value="1032" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -150,6 +169,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -168,25 +188,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.actor-critic-continuous">
-    <configuration name="Robotengine" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="actor_critic+DQN" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="C:\Users\김재환\AppData\Local\Programs\Python\Python35\python.exe" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Robotengine.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
+  <component name="RunManager" selected="Python.continuous_A3C">
     <configuration name="actor-critic-continuous" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="actor_critic+DQN" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -205,19 +207,37 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="environment" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="breakout_a3c" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="actor_critic+DQN" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="C:\Users\김재환\AppData\Local\Programs\Python\Python35\python.exe" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../reinforcement-learning-kr/3-atari/1-breakout" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/environment.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../reinforcement-learning-kr/3-atari/1-breakout/breakout_a3c.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="continuous_A3C" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="actor_critic+DQN" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/continuous_A3C.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -260,19 +280,19 @@
       <option name="MODULE_MODE" value="false" />
     </configuration>
     <list>
-      <item itemvalue="Python.Robotengine" />
-      <item itemvalue="Python.actor-critic-continuous" />
-      <item itemvalue="Python.environment" />
       <item itemvalue="Python.test_engine" />
       <item itemvalue="Python.plotter" />
+      <item itemvalue="Python.continuous_A3C" />
+      <item itemvalue="Python.breakout_a3c" />
+      <item itemvalue="Python.actor-critic-continuous" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.continuous_A3C" />
         <item itemvalue="Python.actor-critic-continuous" />
+        <item itemvalue="Python.breakout_a3c" />
         <item itemvalue="Python.test_engine" />
         <item itemvalue="Python.plotter" />
-        <item itemvalue="Python.environment" />
-        <item itemvalue="Python.Robotengine" />
       </list>
     </recent_temporary>
   </component>
@@ -295,10 +315,10 @@
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17174083" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.28259173" side_tool="true" visible="true" weight="0.35223368" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.29039812" side_tool="true" visible="true" weight="0.32646048" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.49414518" weight="0.3298969" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.7174083" visible="true" weight="0.35223368" />
+      <window_info anchor="bottom" id="Python Console" order="7" sideWeight="0.49102265" weight="0.3298969" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.7096019" weight="0.32646048" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -335,71 +355,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/environment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="513">
-          <caret line="27" column="13" selection-start-line="27" selection-start-column="8" selection-end-line="27" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test_engine.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="13" column="34" lean-forward="true" selection-start-line="13" selection-start-column="34" selection-end-line="13" selection-end-column="34" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Robotengine.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3933">
-          <caret line="207" column="70" selection-start-line="207" selection-start-column="70" selection-end-line="207" selection-end-column="70" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/plotter.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="12" column="34" selection-start-line="12" selection-start-column="34" selection-end-line="12" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/actor-critic-continuous.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2280">
-          <caret line="120" column="79" selection-start-line="120" selection-start-column="79" selection-end-line="120" selection-end-column="79" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/environment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1254">
-          <caret line="66" column="18" selection-start-line="66" selection-start-column="8" selection-end-line="66" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Robotengine.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3192">
-          <caret line="168" column="40" selection-start-line="168" selection-start-column="40" selection-end-line="168" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python35/Lib/site-packages/numpy/linalg/linalg.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="10013">
-          <caret line="527" selection-start-line="527" selection-end-line="527" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/actor-critic-continuous.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1710">
@@ -697,6 +652,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/test_engine.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="17" column="37" selection-start-line="17" selection-start-column="37" selection-end-line="17" selection-end-column="37" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python35/Lib/site-packages/tensorflow/python/framework/common_shapes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="117">
+          <caret line="690" selection-start-line="690" selection-end-line="690" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/fit_initial_weight.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19">
@@ -707,33 +679,72 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/actor-critic-continuous.py">
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python35/Lib/site-packages/keras/engine/topology.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="456">
-          <caret line="35" column="29" selection-start-line="35" selection-start-column="29" selection-end-line="35" selection-end-column="29" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test_engine.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="17" column="37" lean-forward="true" selection-start-line="17" selection-start-column="37" selection-end-line="17" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="19">
+          <caret line="970" selection-start-line="970" selection-end-line="970" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/environment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="49" column="68" selection-start-line="49" selection-start-column="61" selection-end-line="49" selection-end-column="68" />
+        <state relative-caret-position="123">
+          <caret line="40" column="25" selection-start-line="40" selection-start-column="25" selection-end-line="40" selection-end-column="25" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python35/Lib/site-packages/keras/engine/training.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="122">
+          <caret line="1831" selection-start-line="1831" selection-end-line="1831" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/actor-critic-continuous.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="104" column="26" lean-forward="true" selection-start-line="104" selection-start-column="26" selection-end-line="106" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python35/Lib/site-packages/keras/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="122">
+          <caret line="1063" selection-start-line="1063" selection-end-line="1063" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python35/Lib/threading.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="122">
+          <caret line="913" selection-start-line="913" selection-end-line="913" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python35/Lib/site-packages/tensorflow/python/framework/ops.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="122">
+          <caret line="4990" selection-start-line="4990" selection-end-line="4990" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../reinforcement-learning-kr/3-atari/1-breakout/breakout_a3c.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-19">
+          <caret line="305" column="19" selection-start-line="305" selection-start-column="19" selection-end-line="305" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/continuous_A3C.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5738">
+          <caret line="56" column="57" lean-forward="true" selection-start-line="56" selection-start-column="57" selection-end-line="56" selection-end-column="57" />
         </state>
       </provider>
     </entry>

@@ -73,7 +73,7 @@ class A2CAgent:
         actor = Sequential()
         actor.add(Dense(50, input_dim=self.state_size, activation='relu',
                         kernel_initializer='he_uniform'))
-        actor.add(Dense(50, input_dim=self.state_size, activation='relu',
+        actor.add(Dense(50, activation='relu',
                         kernel_initializer='he_uniform'))
         actor.add(Dense(self.action_size, activation='tanh',
                         kernel_initializer='he_uniform'))
@@ -88,7 +88,7 @@ class A2CAgent:
     def get_action(self, state):
         policy = self.actor.predict(state, batch_size=1).flatten()
         if np.random.rand() <= self.epsilon:
-            sigma = np.mean(np.square(policy))
+            sigma = np.sqrt(np.mean(np.square(policy)))
             policy += 2. * self.epsilon * np.random.normal(0, sigma, [self.action_size])
         return policy
 
@@ -134,7 +134,7 @@ class A2CAgent:
             elif(dones[i] == 2):
                 target[i] = rewards[i]
             else:
-                target[i] = rewards[i] + self.discount_factor * (target_val[i])
+                target[i] = rewards[i] + self.discount_factor * target_val[i]
         self.critic.fit(sas, target, batch_size=self.batch_size, epochs=1, verbose=0)
         for i in range(10):
             self.actor.fit(x=states, y=np.zeros((self.batch_size, self.action_size)), batch_size=self.batch_size,
